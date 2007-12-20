@@ -1,0 +1,10 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ scala-mode
+ :version "2.6.1"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "inf-scala-mode")
+       (pases:deffile "scala-mode-auto" :load t)
+       (pases:deffile "scala-mode")))
