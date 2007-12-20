@@ -4,22 +4,28 @@
   (list (expand-file-name "~/.pases/"))
   "Central directory for pases systems.")
 
+(defvar pases:debug t)
+
 (defun byte-recompile-file (file)
   (if (file-newer-than-file-p file (concat file "c"))
       (byte-compile-file file)
     t))
 
-(luna-define-generic pases:load-op (component))
-(luna-define-generic pases:compile-op (component))
+(defsubst pases:debug-message (&rest args)
+  (if pases:debug
+      (apply 'message args)))
+
+(luna-define-generic pases:load-op (component &optional basedir))
+(luna-define-generic pases:compile-op (component &optional basedir targetdir))
 
 ;; pases:component
 (luna-define-class pases:component nil (name version dependencies pathname))
 
 (luna-define-internal-accessors 'pases:component)
 
-(luna-define-method pases:load-op ((c pases:component))
-  (message "Loading component %s." (pases:component-name-internal c))
-  (pases:compile-op c))
+(luna-define-method pases:load-op ((c pases:component) &optional basedir)
+  (pases:debug-message "[pases] Loading component %s." (pases:component-name-internal c))
+  (pases:compile-op c basedir))
 
 ;; pases:source-file
 (luna-define-class pases:source-file (pases:component)
@@ -30,31 +36,32 @@
 (luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
   (pases:source-file-set-compile-internal file t))
 
-(luna-define-method pases:load-op :after ((f pases:source-file))
-  (message "Loading source file %s." (pases:component-name-internal c))
-  (if (pases:source-file-load-internal f)
-      (load (pases:component-pathname-internal f))))
+(luna-define-method pases:load-op :after ((file pases:source-file) &optional basedir)
+  (pases:debug-message "[pases] Loading %s from %s." (pases:component-name-internal c) basedir)
+  (if (pases:source-file-load-internal file)
+      (if (pases:component-pathname-internal file)
+          (load (pases:component-pathname-internal file))
+        (load (expand-file-name (pases:component-name-internal file)
+                                basedir)))))
 
-(luna-define-method pases:compile-op ((f pases:source-file))
+(luna-define-method pases:compile-op ((f pases:source-file) &optional basedir targetdir)
   (if (pases:source-file-compile-internal f)
       (progn
-	(message "Compiling source file %s." (pases:component-name-internal f))
-	(if (not (byte-recompile-file
-		  (concat (pases:component-pathname-internal f) ".el")))
-	    (error "Error compiling %s " (pases:component-name-internal f))))))
+        (let ((path (expand-file-name
+                     (concat (pases:component-name-internal f) ".el")
+                     basedir)))
+          (pases:debug-message "[pases] Maybe compiling %s." path)
+	(if (not (byte-recompile-file path))
+	    (error "Error compiling %s " (pases:component-name-internal f)))))))
     
 ;; pases:source-dir
 (luna-define-class pases:source-dir (pases:component))
 
 (luna-define-internal-accessors 'pases:source-dir)
 
-(luna-define-method pases:compile-op :after ((dir pases:source-dir))
+(luna-define-method pases:compile-op :after ((dir pases:source-dir) &optional basedir targetdir)
   (add-to-list 'load-path
 	       (pases:component-pathname-internal dir)))
-
-;(luna-define-method pases:compile-op ((dir pases:source-dir))
-;  (byte-recompile-directory
-;   (pases:component-pathname-internal dir) nil t))
 
 ;; pases:module
 (luna-define-class pases:module (pases:component) 
@@ -65,14 +72,14 @@
 
 (luna-define-internal-accessors 'pases:module)
 
-(luna-define-method pases:load-op :after ((m pases:module))
+(luna-define-method pases:load-op :after ((m pases:module) &optional basedir)
   (mapc (lambda (c)
-	  (pases:load-op c))
+	  (pases:load-op c (pases:component-pathname-internal m)))
 	(pases:module-components-internal m)))
 
-(luna-define-method pases:compile-op ((m pases:module))
+(luna-define-method pases:compile-op ((m pases:module) &optional basedir targetdir)
   (mapc (lambda (c)
-	  (pases:compile-op c))
+	  (pases:compile-op c (pases:component-pathname-internal m)))
 	(pases:module-components-internal m)))
 
 ;; pases:system
@@ -81,7 +88,7 @@
 
 (luna-define-internal-accessors 'pases:system)
 
-(luna-define-method pases:load-op :before ((s pases:system))
+(luna-define-method pases:load-op :before ((s pases:system) &optional basedir)
   (mapc (lambda (s)
 	  (pases:oos 'pases:load-op s))
 	(pases:system-depends-internal s)))
@@ -99,7 +106,10 @@
     (load-file file)))
 
 (defun pases:oos (op sys)
-  (funcall op (get sys 'pases:system)))
+  (let ((system-real (get sys 'pases:system)))
+    (if (not system-real)
+        (error "[pases] System %s is not loaded." sys) 
+      (funcall op (get sys 'pases:system)))))
 
 (defvar pases:systems '())
 
@@ -115,7 +125,7 @@
 (defmacro pases:deffile (name &rest args)
   `(luna-make-entity 'pases:source-file
 		     :name ,name
-		     :pathname (expand-file-name ,name dir)
+		     ;; :pathname (expand-file-name ,name dir)
 		     ,@args))
 
 (pases:define-systems)
