@@ -1,0 +1,34 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ nxml-mode
+ :version "20071004"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "rng-auto")
+       (pases:deffile "nxml-mode")
+       (pases:deffile "nxml-rap")
+       (pases:deffile "nxml-outln")
+       (pases:deffile "nxml-mode")
+       (pases:deffile "nxml-parse")
+       (pases:deffile "nxml-enc")
+       (pases:deffile "nxml-uchnm")
+       (pases:deffile "nxml-glyph")
+       (pases:deffile "nxml-maint")
+       (pases:deffile "nxml-util")
+       (pases:deffile "nxml-ns")
+       (pases:deffile "rng-dt")
+       (pases:deffile "rng-valid")
+       (pases:deffile "rng-pttrn")
+       (pases:deffile "rng-xsd")
+       (pases:deffile "rng-cmpct")
+       (pases:deffile "rng-match")
+       (pases:deffile "rng-nxml")
+       (pases:deffile "rng-util")
+       (pases:deffile "rng-loc")
+       (pases:deffile "rng-uri")
+       (pases:deffile "rng-parse")
+       (pases:deffile "rng-maint")
+       (pases:deffile "xsd-regexp")
+       (pases:deffile "xmltok")
+       (pases:deffile "rng-auto" :load t)))
