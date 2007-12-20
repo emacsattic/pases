@@ -84,7 +84,7 @@
 
 ;; pases:system
 (luna-define-class pases:system (pases:module)
-		   (depends))
+		   (depends version))
 
 (luna-define-internal-accessors 'pases:system)
 
