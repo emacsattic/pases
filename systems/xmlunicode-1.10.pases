@@ -1,0 +1,7 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ xmlunicode
+ :version "1.10"
+ :components (list (pases:deffile "unichars" :load t)
+		   (pases:deffile "xmlunicode" :load t)))
