@@ -61,7 +61,7 @@
 
 (luna-define-method pases:compile-op :after ((dir pases:source-dir) &optional basedir targetdir)
   (add-to-list 'load-path
-	       (pases:component-pathname-internal dir)))
+	       (expand-file-name (pases:component-name-internal dir) basedir)))
 
 ;; pases:module
 (luna-define-class pases:module (pases:component) 
@@ -126,6 +126,11 @@
   `(luna-make-entity 'pases:source-file
 		     :name ,name
 		     ;; :pathname (expand-file-name ,name dir)
+		     ,@args))
+
+(defmacro pases:defdir (name &rest args)
+  `(luna-make-entity 'pases:source-dir
+		     :name ,name
 		     ,@args))
 
 (pases:define-systems)
