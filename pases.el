@@ -93,15 +93,20 @@
 	  (pases:oos 'pases:load-op s))
 	(pases:system-depends-internal s)))
 
-(defun pases:define-systems ()
-  (mapc 'pases:define-system-dir
+(defun pases:load-sysdefs ()
+  (mapc 'pases:load-sysdef-dir
 	pases:central-registry))
 
-(defun pases:define-system-dir (dir)
+(defun pases:load-sysdef-dir (dir)
   (let ((files (directory-files dir t "\\.pases$")))
-    (mapc 'pases:define-system files)))
+    (mapc 'pases:load-sysdef files))
+  (let ((dirs (directory-files dir t "^[^\\.]")))
+    (mapc (lambda (d)
+	        (if (file-directory-p d)
+		    (pases:load-sysdef-dir d)))
+	  dirs)))
 
-(defun pases:define-system (file)
+(defun pases:load-sysdef (file)
   (let ((pases:system-file (file-truename file)))
     (load-file file)))
 
@@ -133,7 +138,7 @@
 		     :name ,name
 		     ,@args))
 
-(pases:define-systems)
+(pases:load-sysdefs)
 
 (mapc (lambda (s)
 	(pases:oos 'pases:load-op s))
