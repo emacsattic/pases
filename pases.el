@@ -4,6 +4,11 @@
   (list (expand-file-name "~/.pases/"))
   "Central directory for pases systems.")
 
+(defcustom pases:package-dir
+  (expand-file-name "~/.pases/")
+  "Directory to install user packages in."
+  :type 'directory)
+
 (defvar pases:debug t)
 
 (defun byte-recompile-file (file)
@@ -121,8 +126,7 @@
 	  dirs)))
 
 (defun pases:load-sysdef (file)
-  (let ((pases:system-file (file-truename file)))
-    (load-file file)))
+  (load-file file))
 
 (defun pases:oos (op sys)
   (let ((system-real (get sys 'pases:system)))
@@ -133,13 +137,12 @@
 (defvar pases:systems '())
 
 (defmacro pases:defsystem (name &rest args)
-  `(let ((dir (file-name-directory pases:system-file)))
-     (add-to-list 'pases:systems (quote ,name))
-     (put (quote ,name) 'pases:system
-	  (luna-make-entity 'pases:system
-			    :name (symbol-name (quote ,name))
-			    :pathname dir
-			    ,@args))))
+  `(add-to-list 'pases:systems (quote ,name))
+  `(put (quote ,name) 'pases:system
+	(luna-make-entity 'pases:system
+			  :name (symbol-name (quote ,name))
+			  :pathname (file-name-directory load-file-name)
+			  ,@args)))
 
 (defmacro pases:deffile (name &rest args)
   `(luna-make-entity 'pases:source-file
@@ -154,9 +157,12 @@
 
 (pases:load-sysdefs)
 
-(mapc (lambda (s)
-	(pases:oos 'pases:load-op s))
-      pases:systems)
+(defun pases:load-all ()
+  (mapc (lambda (s)
+	  (pases:oos 'pases:load-op s))
+	pases:systems))
+
+(pases:load-all)
 
 (put 'emacs 'pases:system
      (luna-make-entity 
