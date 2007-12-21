@@ -1,4 +1,6 @@
+(add-to-list 'load-path (file-name-directory load-file-name))
 (load "luna")
+(load "pases-package")
 
 (defvar pases:central-registry
   (list (expand-file-name "~/.pases/"))
