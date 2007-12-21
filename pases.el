@@ -18,9 +18,9 @@
 (luna-define-generic pases:load-op (component &optional basedir))
 (luna-define-generic pases:compile-op (component &optional basedir targetdir))
 
-(defun pases:call-dependent-op (c)
-  (let ((op (pases:component-dependent-op-internal c)))
-    (funcall op c)))
+(defun pases:call-dependent-op (first-op c)
+  (let ((op (cdr (assoc first-op (pases:component-dependent-op-internal c)))))
+    (if op (funcall op c))))
 
 ;; pases:component
 (luna-define-class pases:component nil 
@@ -30,7 +30,7 @@
 
 (luna-define-method pases:load-op ((c pases:component) &optional basedir)
   (pases:debug-message "[pases] Loading component %s." (pases:component-name-internal c))
-  (pases:call-dependent-op c))
+  (pases:call-dependent-op 'pases:load-op c))
 
 ;; pases:source-file
 (luna-define-class pases:source-file (pases:component)
@@ -39,7 +39,9 @@
 (luna-define-internal-accessors 'pases:source-file)
 
 (luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
-  (pases:component-set-dependent-op-internal file 'pases:compile-op)
+  (pases:component-set-dependent-op-internal 
+   file
+   '((pases:load-op . pases:compile-op)))
   (pases:source-file-set-compile-internal file t))
 
 (luna-define-method pases:load-op :after ((file pases:source-file) &optional basedir)
@@ -57,14 +59,15 @@
                      (concat (pases:component-name-internal f) ".el")
                      basedir)))
           (pases:debug-message "[pases] Maybe compiling %s." path)
-	(if (byte-recompile-file path)
-	    (let ((target-path
-		   (expand-file-name 
-		    (concat (pases:component-name-internal f) ".elc")
-		    basedir)))
-	      (rename-file path target-path))
+	  (if (byte-recompile-file path)
+	      (if targetdir
+		  (let ((target-path
+			 (expand-file-name 
+			  (concat (pases:component-name-internal f) ".elc")
+			  targetdir)))
+		    (rename-file (concat path "c") target-path)))
 	    (error "Error compiling %s " (pases:component-name-internal f)))))))
-    
+ 
 ;; pases:source-dir
 (luna-define-class pases:source-dir (pases:component))
 
