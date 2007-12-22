@@ -2,7 +2,7 @@
 
 (pases:defsystem
  org-mode
- :version "5.16b"
+ :version "5.17a"
  :components
  (list (pases:defdir ".")
        (pases:deffile "org")
