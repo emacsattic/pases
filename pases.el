@@ -25,9 +25,9 @@
 (luna-define-generic pases:load-op (component &optional basedir))
 (luna-define-generic pases:compile-op (component &optional basedir targetdir))
 
-(defun pases:call-dependent-op (first-op c)
+(defun pases:call-dependent-op (first-op c &rest args)
   (let ((op (cdr (assoc first-op (pases:component-dependent-op-internal c)))))
-    (if op (funcall op c))))
+    (if op (apply op c args))))
 
 ;; pases:component
 (luna-define-class pases:component nil 
@@ -37,7 +37,7 @@
 
 (luna-define-method pases:load-op ((c pases:component) &optional basedir)
   (pases:debug-message "[pases] loading component %s." (pases:component-name-internal c))
-  (pases:call-dependent-op 'pases:load-op c))
+  (pases:call-dependent-op 'pases:load-op c basedir))
 
 ;; pases:source-file
 (luna-define-class pases:source-file (pases:component)
@@ -143,12 +143,13 @@
 (defvar pases:systems '())
 
 (defmacro pases:defsystem (name &rest args)
-  `(add-to-list 'pases:systems (quote ,name))
-  `(put (quote ,name) 'pases:system
-	(luna-make-entity 'pases:system
+  `(progn
+     (add-to-list 'pases:systems (quote ,name))
+     (put (quote ,name) 'pases:system
+	  (luna-make-entity 'pases:system
 			  :name (symbol-name (quote ,name))
 			  :pathname (file-name-directory (file-truename load-file-name))
-			  ,@args)))
+			  ,@args))))
  
 (defmacro pases:deffile (name &rest args)
   `(luna-make-entity 'pases:source-file
@@ -160,17 +161,16 @@
 		     :name ,name
 		     ,@args))
 
-(pases:load-sysdefs)
-
 (defun pases:load-all ()
   (mapc (lambda (s)
 	  (pases:oos 'pases:load-op s))
 	pases:systems))
-
-(pases:load-all)
 
 (put 'emacs 'pases:system
      (luna-make-entity 
       'pases:system
       :name "emacs"
       :version emacs-version))
+
+(pases:load-sysdefs)
+(pases:load-all)
