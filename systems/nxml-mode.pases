@@ -2,10 +2,9 @@
 
 (pases:defsystem 
  nxml-mode
- :version "20071004"
+ :version "20041004"
  :components
  (list (pases:defdir ".")
-       (pases:deffile "rng-auto")
        (pases:deffile "nxml-mode")
        (pases:deffile "nxml-rap")
        (pases:deffile "nxml-outln")
