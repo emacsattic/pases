@@ -1,7 +1,16 @@
 (require 'tar-mode)
+(require 'jka-compr)
+
+(unless (member "\\.pases\\'" (mapcar (lambda (vec) (elt vec 0))
+                                     jka-compr-compression-info-list))
+    (add-to-list 'jka-compr-compression-info-list
+               ["\\.pases\\'" nil nil nil
+                "uncompressing"  "gzip"  ("-c" "-q" "-d")
+                nil t "^_\213"])
+  (jka-compr-update))
 
 (defun pases:install-package (file)
-  (interactive "f")
+  (interactive "fPackage to install: ")
   (let* ((package-name (file-name-nondirectory
                         (file-name-sans-extension file)))
 	 (default-directory (expand-file-name 
@@ -17,4 +26,3 @@
 	(tar-untar-buffer)))
     (pases:load-sysdef-dir default-directory)
     (pases:load-all)))
-
