@@ -7,7 +7,9 @@
                ["\\.pases\\'" nil nil nil
                 "uncompressing"  "gzip"  ("-c" "-q" "-d")
                 nil t "^_\213"])
-  (jka-compr-update))
+    (when (jka-compr-installed-p)
+      (jka-compr-uninstall)
+      (jka-compr-install)))
 
 (defun pases:install-package (file)
   (interactive "fPackage to install: ")
