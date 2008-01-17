@@ -173,5 +173,8 @@
       :name "emacs"
       :version emacs-version))
 
+(if (not (file-exists-p pases:package-dir))
+    (make-directory pases:package-dir))
+
 (pases:load-sysdefs)
 (pases:load-all)
