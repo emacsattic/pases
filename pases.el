@@ -80,10 +80,11 @@
 
 (luna-define-internal-accessors 'pases:source-dir)
 
-(luna-define-method pases:compile-op :after ((dir pases:source-dir) &optional basedir targetdir)
-  (add-to-list 'load-path
-	       (expand-file-name (pases:component-name-internal dir) basedir)))
-
+(luna-define-method pases:load-op :after ((dir pases:source-dir) &optional basedir targetdir)
+  (let ((fullpath (expand-file-name (pases:component-name-internal dir) basedir)))
+    (pases:debug-message "[pases] loading dir: %s." fullpath)
+    (add-to-list 'load-path fullpath)))
+	       
 ;; pases:module
 (luna-define-class pases:module (pases:component) 
 		   (components
