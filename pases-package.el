@@ -3,8 +3,7 @@
 (defun pases:install-package (file)
   (interactive "f")
   (let* ((package-name (file-name-nondirectory
-			(file-name-sans-extension
-			 (file-name-sans-extension file))))
+                        (file-name-sans-extension file)))
 	 (default-directory (expand-file-name 
 			     package-name
 			     pases:package-dir)))

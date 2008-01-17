@@ -3,11 +3,11 @@
 (load "pases-package")
 
 (defvar pases:central-registry
-  (list (expand-file-name "~/.pases/"))
+  (list (expand-file-name "~/.pases.d/"))
   "Central directory for pases systems.")
 
 (defcustom pases:package-dir
-  (expand-file-name "~/.pases/")
+  (expand-file-name "~/.pases.d/")
   "Directory to install user packages in."
   :type 'directory)
 
@@ -124,7 +124,7 @@
 	pases:central-registry))
 
 (defun pases:load-sysdef-dir (dir)
-  (let ((files (directory-files dir t "\\.pases$")))
+  (let ((files (directory-files dir t "\\.pasdef$")))
     (mapc 'pases:load-sysdef files))
   (let ((dirs (directory-files dir t "^[^\\.]")))
     (mapc (lambda (d)
