@@ -94,6 +94,48 @@
                      ,@(if (not (plist-get args :dep-op))
                           '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
                      ,@args))
+
+;; pases:texi-file
+;; (luna-define-class pases:texi-source (pases:source-file))
+;; (luna-define-internal-accessors 'pases:texi-source)
+
+;; (luna-define-method pases:compile ((texi-file pases:texi-source) &optional parent)
+;;   (let* ((basedir (pases:component-pathname-internal parent))
+;;          (texi-file-name (expand-file-name
+;;                           (pases:component-name-internal texi-file) basedir))
+;;          (info-file-name (expand-file-name
+;;                           (concat (file-name-nondirectory (file-name-sans-extension texi-file-name)) ".info")
+;;                           basedir)))
+;;     (if (not (file-exists-p info-file-name))
+;;         (with-temp-buffer
+;;           (pases:debug-message "[pases] building texinfo file %s." info-file-name)
+;;           (insert-file-literally texi-file-name)
+;;           (texinfo-format-buffer)
+;;           (write-file info-file-name)))))
+
+;; (defmacro pases:def-texi-file (name &rest args)
+;;   `(luna-make-entity 'pases:texi-source
+;; 		     :name ,name
+;; 		     ,@args))
+
+;; pases:info-dir
+(luna-define-class pases:info-dir (pases:component))
+(luna-define-internal-accessors 'pases:info-dir)
+
+(luna-define-method pases:load ((info-dir pases:info-dir) &optional parent)
+  (let* ((basedir (pases:component-pathname-internal parent))
+         (dir-name (expand-file-name (pases:component-name-internal info-dir)
+                                     basedir)))
+    (message "%s" dir-name)
+    (eval-after-load "info"
+      `(progn
+         (info-initialize)
+         (add-to-list 'Info-directory-list ,dir-name)))))
+
+(defmacro pases:def-info-dir (name &rest args)
+  `(luna-make-entity 'pases:info-dir
+		     :name ,name
+		     ,@args))
  
 ;; pases:source-dir
 (luna-define-class pases:source-dir (pases:component))
