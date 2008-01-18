@@ -9,4 +9,5 @@
        (pases:deffile "org-mouse")
        (pases:deffile "org-publish")
        (pases:deffile "org-export-latex")
-       (pases:deffile "org-install" :load t)))
+       (pases:deffile "org-install" :load t)
+       (pases:def-info-dir ".")))
