@@ -4,10 +4,14 @@
  org-mode
  :version "5.18a"
  :components
- (list (pases:defdir ".")
-       (pases:deffile "org")
-       (pases:deffile "org-mouse")
-       (pases:deffile "org-publish")
-       (pases:deffile "org-export-latex")
-       (pases:deffile "org-install" :load t)
-       (pases:def-info-dir ".")))
+ `(,(pases:defdir ".")
+   ,(pases:deffile "org")
+   ,(pases:deffile "org-mouse")
+   ,(pases:deffile "org-publish")
+   ,(pases:deffile "org-export-latex")
+   ,@(if (eq pases:emacs-variant :xemacs)
+         (list (pases:defdir "./xemacs/")
+               (pases:deffile "./xemacs/noutline")
+               (pases:deffile "./xemacs/ps-print-invisible")))
+   ,(pases:deffile "org-install" :load t)
+   ,(pases:def-info-dir ".")))
