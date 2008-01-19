@@ -12,4 +12,4 @@ tar czf ${TMPDIR}/${BASE}-${V}.pases *
 mv ${TMPDIR}/${BASE}-${V}.pases ${OLDDIR}
 cd ${OLDDIR}
 rm -rf ${TMPDIR}
-echo "Build package from source at ${URL}: ${BASE}-${V}.pases"
+echo "Built package from source at ${URL}: ${BASE}-${V}.pases"
