@@ -29,6 +29,30 @@
   (list (expand-file-name "~/.pases.d/"))
   "Central directory for pases systems.")
 
+(defvar pases:emacs-variant
+  (if (featurep 'xemacs)
+      :xemacs
+    :gnuemacs)
+  "Emacs variant (ie, :gnuemacs or :xemacs).")
+
+(defvar pases:window-system
+  (cond ((eq window-system 't)
+         :x))
+  "Window system (ie, :x).")
+
+(defvar pases:emacs-version
+  (concat 
+   (number-to-string emacs-major-version) "."
+   (number-to-string emacs-minor-version))
+  "Version string of the current emacs version.")
+
+(defvar pases:system-name
+  (cond ((eq pases:emacs-variant :gnuemacs)
+         (system-name))
+        ((eq pases:emacs-variant :xemacs)
+         (getenv "HOST")))
+  "The name of the host that Emacs is running on.")
+
 (defcustom pases:package-dir
   (expand-file-name "~/.pases.d/")
   "Directory to install user packages in."
