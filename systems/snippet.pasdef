@@ -1,0 +1,8 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ snippet
+ :version "0.2"
+ :components
+ `(,(pases:defdir ".")
+   ,(pases:deffile "snippet")))
