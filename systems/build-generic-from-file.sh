@@ -2,7 +2,7 @@
 OLDDIR=`pwd`
 TMPDIR=`mktemp -d /tmp/pases.XXXXXXXXXX` || exit 1
 if [ ! -e $BASE.el ] ; then
-    wget $URL -q
+    wget $URL -q -O $BASE.el
 fi
 cd ${TMPDIR}
 cp ${OLDDIR}/${BASE}.pasdef ${TMPDIR}

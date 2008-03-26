@@ -1,0 +1,8 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ find-recursive
+ :version "2001-03-26"
+ :components
+ `(,(pases:defdir ".")
+   ,(pases:deffile "find-recursive")))
