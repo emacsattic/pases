@@ -6,9 +6,13 @@ if [ ! -e ${OLDDIR}/${BASE}-${V}.tar.gz ] ; then
 fi
 cd ${TMPDIR}
 tar xzf ${OLDDIR}/${BASE}-${V}.tar.gz
-cp ${OLDDIR}/${BASE}.pasdef ${TMPDIR}/${BASE}-${V}/
-cd ${TMPDIR}/${BASE}-${V}
-tar czf ${TMPDIR}/${BASE}-${V}.pases *
+if [ -d ${BASE}-${V} ] ; then
+    cd ${BASE}-${V}
+elif [ -d ${BASE} ] ; then
+    cd ${BASE}
+fi
+cp ${OLDDIR}/${BASE}.pasdef .
+tar cz --owner=nobody --group=users -f ../${BASE}-${V}.pases *
 mv ${TMPDIR}/${BASE}-${V}.pases ${OLDDIR}
 cd ${OLDDIR}
 rm -rf ${TMPDIR}
