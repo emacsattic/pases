@@ -11,11 +11,18 @@
       (jka-compr-uninstall)
       (jka-compr-install)))
 
-(defun pases:install-package (file)
-  (interactive "fPackage to install: ")
-  (let* ((package-name (file-name-nondirectory
-                        (file-name-sans-extension file)))
-	 (default-directory (expand-file-name 
+(defun pases:install-package (&optional package)
+  (interactive)
+  (let* ((package-path-p (lambda (f) (or (file-directory-p f) 
+                                         (string= (file-name-extension f)
+                                                  "pases"))))
+         (package-path (if package
+                           package
+                         (read-file-name "Package to install: " nil nil
+                                         t nil package-path-p)))
+         (package-name (file-name-nondirectory
+                        (file-name-sans-extension package-path)))
+	 (default-directory (expand-file-name
 			     package-name
 			     pases:package-dir)))
     (if (file-exists-p default-directory)
@@ -23,8 +30,9 @@
       (make-directory default-directory))
     (save-excursion
       (with-temp-buffer
-	(insert-file-contents file)
+	(insert-file-contents package-path)
 	(tar-summarize-buffer)
 	(tar-untar-buffer)))
     (pases:load-sysdef-dir default-directory)
-    (pases:load-all)))
+    (pases:load-all)
+    (message "[pases] Successfully installed %s." package-name)))
