@@ -1,0 +1,7 @@
+Version 0.1
+(7 May 2009)
+
+ New features, enhancements:
+    * It works!
+    * Makefiles included for: emacs-rails, find-recursive, js2,
+      nxml-mode, org, snippet, xmlunicode
