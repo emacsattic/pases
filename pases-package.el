@@ -36,3 +36,28 @@
     (pases:load-sysdef-dir default-directory)
     (pases:load-all)
     (message "[pases] Successfully installed %s." package-name)))
+
+(defun pases:uninstall-package (package-name)
+  (interactive
+   (list (completing-read "Package: " (mapcar 'symbol-name pases:systems))))
+  (message package-name)
+  (let* ((package (intern package-name))
+         (package-def (get package 'pases:system))
+         (package-path (pases:component-pathname-internal package-def))
+         (recurse-delete (lambda (d)
+                           (loop for f in (directory-files d)
+                                 do (let ((path (expand-file-name f d)))
+                                      (if (and (not (string= f "."))
+                                               (not (string= f "..")))
+                                          (if (file-directory-p path)
+                                              (funcall recurse-delete path)
+                                            (delete-file path)))))
+                           (delete-directory d))))
+    (print (directory-files package-path t "^[^\\.+]$"))
+    (if (yes-or-no-p
+       (format "Are you sure that you want to remove all files in %s? " package-path))
+        (progn
+          (funcall recurse-delete package-path)
+          (delq package pases:systems)
+          (message "The package %s has been removed. However, please note that the package will remain loaded into your running Emacs until restart."
+                   package-name)))))
