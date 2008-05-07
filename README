@@ -5,10 +5,10 @@ Pases is a packaging and system definition system for Emacs.
 * Installing
 
 To begin using Pases, unpack the distribution to a directory. We will
-assume that you have unpacked it to ~/share/emacs/pases/. Then add the
-following to your .emacs file:
+assume that you have unpacked it to ~/share/emacs/pases-0.1/. Then add
+the following to your .emacs file:
 
-(load (expand-file-name "~/share/emacs/pases/pases.el"))
+(load (expand-file-name "~/share/emacs/pases-0.1/pases.el"))
 
 That is all you need. Either restart Emacs or evaluate that line.
 
