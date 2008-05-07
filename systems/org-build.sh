@@ -1,5 +1,5 @@
 #!/bin/sh
-V="5.23a"
+V="6.02"
 BASE="org"
-URL="http://orgmode.org/org-${V}.tar.gz"
+URL="http://orgmode.org/org-6.02.tar.gz"
 . ./build-generic.sh
