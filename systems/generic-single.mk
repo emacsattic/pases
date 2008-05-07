@@ -7,6 +7,8 @@ clean:
 	rm $(FILE)
 	rm $(PASESFILE)
 
-$(FILE):
-	wget "$(URL)" -q
+$(FILE): $(FETCHFILE)
 	mv $(FETCHFILE) $(FILE)
+
+$(FETCHFILE):
+	wget "$(URL)" -q
