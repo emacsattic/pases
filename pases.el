@@ -58,9 +58,11 @@
 
 (defvar pases:debug t)
 
-(defun byte-recompile-file (file)
+(defun pases:byte-recompile-file (file compile-thunk)
   (if (file-newer-than-file-p file (concat file "c"))
-      (byte-compile-file file)
+      (progn
+	(if compile-thunk (funcall compile-thunk))
+	(byte-compile-file file))
     t))
 
 (defsubst pases:debug-message (&rest args)
@@ -92,7 +94,7 @@
 
 ;; pases:source-file
 (luna-define-class pases:source-file (pases:component)
-		   (load compile))
+		   (load compile compile-thunk))
 
 (luna-define-internal-accessors 'pases:source-file)
 
@@ -122,14 +124,14 @@
                        (concat (pases:component-name-internal f) ".el")
                        basedir)))
             (pases:debug-message "[pases] maybe compiling %s." path)
-            (if (byte-recompile-file path)
+            (if (pases:byte-recompile-file path (pases:source-file-compile-thunk-internal f))
                 (if targetdir
                     (let ((target-path
                            (expand-file-name 
                             (concat (pases:component-name-internal f) ".elc")
                             targetdir)))
                       (rename-file (concat path "c") target-path)))
-	    (error "Error compiling %s " (pases:component-name-internal f))))))))
+	      (error "Error compiling %s " (pases:component-name-internal f))))))))
 
 (defmacro pases:deffile (name &rest args)
   `(luna-make-entity 'pases:elisp-source
