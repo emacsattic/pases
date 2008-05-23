@@ -1,0 +1,24 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ g-client
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "g-load-path" :load nil) ;; used when compiling
+       (pases:deffile "g-loaddefs")
+       (pases:deffile "g-auth")              
+       (pases:deffile "g-utils")
+       (pases:deffile "g-app")
+       (pases:deffile "greader")
+       (pases:deffile "gsheet")
+       (pases:deffile "gcal"  :compile-thunk (lambda () (load "g-load-path")))
+       (pases:deffile "gnotebook")
+       (pases:deffile "gblogger")
+       (pases:deffile "g-cus-load")
+       (pases:deffile "gnotebook")
+       (pases:deffile "gphoto")
+       (pases:deffile "gskeleton")
+       (pases:deffile "gtube")
+       (pases:deffile "indent-files")
+       (pases:deffile "json")
+       (pases:deffile "g" :load t)))
