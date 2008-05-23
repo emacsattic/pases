@@ -1,0 +1,8 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ elunit
+ :version "1"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "elunit")))
