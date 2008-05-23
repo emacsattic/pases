@@ -1,0 +1,17 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ icicles
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "icicles-cmd")
+       (pases:deffile "icicles" :load t)
+       (pases:deffile "icicles-face")
+       (pases:deffile "icicles-fn")
+       (pases:deffile "icicles-mac")
+       (pases:deffile "icicles-mcmd")
+       (pases:deffile "icicles-menu")
+       (pases:deffile "icicles-mode")
+       (pases:deffile "icicles-opt")
+       (pases:deffile "icicles-var")
+       (pases:deffile "icomplete+")))
