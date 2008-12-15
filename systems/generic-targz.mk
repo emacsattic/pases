@@ -15,7 +15,7 @@ $(TARFILE):
 	wget "$(URL)" -q
 
 .unpack: $(TARFILE) build
-	tar x --strip-components 1 -C build -zf $(TARFILE)
+	tar x --strip-components 1 --format=v7 -C build -zf $(TARFILE)
 
 $(FILES): .unpack
 
