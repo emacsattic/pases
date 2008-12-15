@@ -2,7 +2,7 @@
 
 (pases:defsystem
  org-mode
- :version "6.10c"
+ :version "6.14"
  :components
  `(,(pases:defdir "lisp")
    ,(pases:deffile "lisp/org-macs")
@@ -35,8 +35,10 @@
    ,(pases:deffile "lisp/org-remember")
    ,(pases:deffile "lisp/org-rmail")
    ,(pases:deffile "lisp/org-table")
+   ,(pases:deffile "lisp/org-timer")
    ,(pases:deffile "lisp/org-vm")
    ,(pases:deffile "lisp/org-wl")
+   ,(pases:deffile "lisp/org-w3m")
    ,@(if (eq pases:emacs-variant :xemacs)
          (list (pases:defdir "./xemacs/")
                (pases:deffile "./xemacs/noutline")
@@ -47,6 +49,9 @@
    ,(pases:deffile "contrib/lisp/org-annotate-file")
    ,(pases:deffile "contrib/lisp/org-annotation-helper")
    ,(pases:deffile "contrib/lisp/org-bookmark")
+   ,(pases:deffile "contrib/lisp/org-eval-light")
+   ,(pases:deffile "contrib/lisp/org-exp-blocks")
+   ,(pases:deffile "contrib/lisp/org2rem")
    ,(pases:deffile "contrib/lisp/org-checklist")
    ,(pases:deffile "contrib/lisp/org-depend")
    ,(pases:deffile "contrib/lisp/org-elisp-symbol")
@@ -62,8 +67,8 @@
    ,(pases:deffile "contrib/lisp/org-screen")
    ,(pases:deffile "contrib/lisp/orgtbl-sqlinsert")
    ,(pases:deffile "contrib/lisp/org-toc")
-   ,(pases:deffile "control/packages/org-export-freemind-0.1.0")
-   ,(pases:deffile "org-export-freemind-0.1.0/org-export-freemind-install")
+   ,(pases:defdir "contrib/packages/org-export-freemind-0.1.0")
+   ,(pases:deffile "contrib/packages/org-export-freemind-0.1.0/org-export-freemind-install")
    ,(pases:deffile "contrib/packages/org-export-freemind-0.1.0/org-export-freemind")
    ,(pases:deffile "lisp/org-install" :load t)
    ,(pases:def-info-dir "doc")))
