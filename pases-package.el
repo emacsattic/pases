@@ -43,20 +43,21 @@
                                          t nil package-path-p)))
          (package-name (file-name-nondirectory
                         (file-name-sans-extension package-path)))
-	 (default-directory (expand-file-name
-			     package-name
-			     pases:package-dir)))
-    (if (file-exists-p default-directory)
+	 (package-install-dir (expand-file-name
+                               package-name
+                               pases:package-dir)))
+    (if (file-exists-p package-install-dir)
 	(error "[pases] package already installed?")
-      (make-directory default-directory))
+      (make-directory package-install-dir))
     (save-excursion
       (with-temp-buffer
 	(insert-file-contents package-path)
-	(tar-summarize-buffer)
-	(tar-untar-buffer)))
-    (pases:load-sysdef-dir default-directory)
+        (let ((default-directory package-install-dir))
+          (tar-summarize-buffer)
+          (tar-untar-buffer))))
+    (pases:load-sysdef-dir package-install-dir)
     (pases:load-all)
-    (message "[pases] Successfully installed %s." package-name)))
+    (message "[pases] Successfully installed %s." package-install-dir)))
 
 (defun pases:uninstall-package (package-name)
   (interactive
