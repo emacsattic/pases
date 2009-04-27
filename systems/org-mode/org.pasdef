@@ -2,29 +2,35 @@
 
 (pases:defsystem
  org-mode
- :version "6.24b"
+ :version "6.26d"
  :components
  `(,(pases:defdir "lisp")
    ,(pases:deffile "lisp/org-macs")
    ,(pases:deffile "lisp/org")
    ,(pases:deffile "lisp/org-agenda")
    ,(pases:deffile "lisp/org-archive")
+   ,(pases:deffile "lisp/org-ascii")
    ,(pases:deffile "lisp/org-attach")
    ,(pases:deffile "lisp/org-bbdb")
    ,(pases:deffile "lisp/org-bibtex")
    ,(pases:deffile "lisp/org-clock")
    ,(pases:deffile "lisp/org-colview")
    ,(pases:deffile "lisp/org-compat")
+   ,(pases:deffile "lisp/org-docbook")
    ,(pases:deffile "lisp/org-exp")
    ,(pases:deffile "lisp/org-export-latex")
    ,(pases:deffile "lisp/org-faces")
    ,(pases:deffile "lisp/org-footnote")
    ,(pases:deffile "lisp/org-gnus")
+   ,(pases:deffile "lisp/org-html")
+   ,(pases:deffile "lisp/org-icalendar")
    ,(pases:deffile "lisp/org-id")
    ,(pases:deffile "lisp/org-info")
+   ,(pases:deffile "lisp/org-inlinetask")
    ,(pases:deffile "lisp/org-install" :load t)
    ,(pases:deffile "lisp/org-irc")
    ,(pases:deffile "lisp/org-jsinfo")
+   ,(pases:deffile "lisp/org-latex")
    ,(pases:deffile "lisp/org-list")
    ,(pases:deffile "lisp/org-mac-message")
    ,(pases:deffile "lisp/org-macs")
@@ -40,13 +46,14 @@
    ,(pases:deffile "lisp/org-vm")
    ,(pases:deffile "lisp/org-w3m")
    ,(pases:deffile "lisp/org-wl")
+   ,(pases:deffile "lisp/org-xox")
    ,@(if (eq pases:emacs-variant :xemacs)
          (list (pases:defdir "./xemacs/")
                (pases:deffile "./xemacs/noutline")
                (pases:deffile "./xemacs/ps-print-invisible")
                (pases:deffile "lisp/org-colview-xemacs")))
    ,(pases:defdir "contrib/lisp")
-   ,(pases:deffile "contrib/lisp/org2rem")
+   ,(pases:deffile "contrib/lisp/htmlize")
    ,(pases:deffile "contrib/lisp/org-annotate-file")
    ,(pases:deffile "contrib/lisp/org-annotation-helper")
    ,(pases:deffile "contrib/lisp/org-bookmark")
@@ -70,10 +77,14 @@
    ,(pases:deffile "contrib/lisp/org-registry")
    ,(pases:deffile "contrib/lisp/org-R")
    ,(pases:deffile "contrib/lisp/org-screen")
-   ,(pases:deffile "contrib/lisp/orgtbl-sqlinsert")
    ,(pases:deffile "contrib/lisp/org-toc")
+   ,(pases:deffile "contrib/lisp/org2rem")
+   ,(pases:deffile "contrib/lisp/orgtbl-sqlinsert")
    ,(pases:defdir "contrib/packages/org-export-freemind-0.1.0")
    ,(pases:deffile
      "contrib/packages/org-export-freemind-0.1.0/org-export-freemind-install")
    ,(pases:deffile "contrib/packages/org-export-freemind-0.1.0/org-export-freemind")
    ,(pases:def-info-dir "doc")))
+
+
+
