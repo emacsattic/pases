@@ -1,8 +1,8 @@
-URL = http://orgmode.org/org-6.26d.tar.gz
-VERSION = 6.26d
+URL = http://orgmode.org/org-6.28e.tar.gz
+VERSION = 6.28e
 NAME = org
 PASESFILE = $(NAME)-$(VERSION).pases
-TARFILE = org-6.26d.tar.gz
+TARFILE = org-6.28e.tar.gz
 PASDEF = org.pasdef
 ELFILES = \
 build/contrib/lisp/*.el \
@@ -17,9 +17,7 @@ build/contrib/ChangeLog \
 build/contrib/README \
 build/contrib/packages/org-export-freemind-0.1.0/ChangeLog \
 build/contrib/packages/org-export-freemind-0.1.0/README \
-build/contrib/scripts/dir2org.zsh \
-build/contrib/scripts/ditaa.jar \
-build/contrib/scripts/org2hpda \
+build/contrib/scripts/* \
 build/doc/* \
 build/request-assign-future.txt \
 build/xemacs/README
