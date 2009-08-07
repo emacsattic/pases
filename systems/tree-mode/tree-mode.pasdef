@@ -1,0 +1,8 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ tree-mode
+ :version "1.0"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "tree-mode")))
