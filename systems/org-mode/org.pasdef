@@ -2,7 +2,7 @@
 
 (pases:defsystem
  org-mode
- :version "6.26d"
+ :version "6.29c"
  :components
  `(,(pases:defdir "lisp")
    ,(pases:deffile "lisp/org-macs")
