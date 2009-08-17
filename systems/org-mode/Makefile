@@ -1,9 +1,10 @@
-URL = http://orgmode.org/org-6.28e.tar.gz
-VERSION = 6.28e
+URL = http://orgmode.org/org-6.29c.tar.gz
+VERSION = 6.29c
 NAME = org
 PASESFILE = $(NAME)-$(VERSION).pases
-TARFILE = org-6.28e.tar.gz
+TARFILE = org-6.29c.tar.gz
 PASDEF = org.pasdef
+DESCRIPTION = Package for org-mode $(VERSION)
 ELFILES = \
 build/contrib/lisp/*.el \
 build/contrib/packages/org-export-freemind-0.1.0/*.el \
@@ -25,3 +26,4 @@ build/xemacs/README
 FILES = $(ELFILES) $(DOCFILES) $(PASDEF)
 
 include ../generic-targz.mk
+include ../launchpad.mk
