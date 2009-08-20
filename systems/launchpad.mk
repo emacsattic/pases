@@ -1,7 +1,7 @@
 $(PASESFILE).asc: $(PASESFILE)
 	gpg --armor --sign --detach-sig -u $(LP_USER) $(PASESFILE)
 
-lp-upload-package: $(PASESFILE).asc lp-login
+lp-upload: $(PASESFILE).asc lp-login
 	curl -X POST https://launchpad.net/pases/trunk/0.1/+adddownloadfile -b /tmp/my_cookie \
 -F "field.description=$(DESCRIPTION)" \
 -F "field.filecontent.used=" \
