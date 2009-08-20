@@ -1,0 +1,11 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ mingus
+ :version "0.29"
+ :depends '(libmpdee)
+ :components
+ `(,(pases:defdir ".")
+   ,(pases:deffile "mingus")))
+
+(autoload 'mingus "mingus")
