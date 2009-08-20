@@ -1,0 +1,13 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ confluence
+ :version "1.2"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "confluence")
+       (pases:deffile "xml-rpc")
+       ))
+
+(autoload 'confluence-get-page "confluence" nil t)
+(autoload 'confluence-search "confluence" nil t)
