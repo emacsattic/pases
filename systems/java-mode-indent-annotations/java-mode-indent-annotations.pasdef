@@ -1,0 +1,11 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ java-mode-indent-annotations
+ :version "20060222"
+ :components
+ `(,(pases:defdir ".")
+   ,(pases:deffile "java-mode-indent-annotations")))
+
+(autoload 'java-mode-indent-annotations-setup "java-mode-indent-annotations")
+(add-hook 'java-mode-hook 'java-mode-indent-annotations-setup)
