@@ -1,0 +1,8 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ libmpdee
+ :version "2.1"
+ :components
+ `(,(pases:defdir ".")
+   ,(pases:deffile "libmpdee")))
