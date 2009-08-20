@@ -193,6 +193,6 @@ build/test.invalid.xml \
 build/COPYING \
 build/test.valid.xml \
 
-FILES = $(ELFILES) $(DOCFILES) $(PASDEF)
+FILES = $(ELFILES) $(DOCFILES)
 
 include ../generic-targz.mk

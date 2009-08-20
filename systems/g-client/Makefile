@@ -37,7 +37,7 @@ builddir/gevent-view.xsl \
 builddir/gevent.xsl \
 builddir/ut.xsl
 
-FILES = $(ELFILES) $(DOCFILES) $(MISCFILES) $(PASDEF)
+FILES = $(ELFILES) $(DOCFILES) $(MISCFILES)
 
 include ../generic-svn.mk
 

@@ -1,7 +1,7 @@
 PASESFILE = $(NAME)-$(VERSION).pases
 
 $(PASESFILE): $(FILES)
-	tar c --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES)
+	tar c --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES) $(PASDEF)
 
 build: 
 	mkdir build

@@ -1,20 +1,16 @@
-VERSION = $(shell cd builddir ; svn info |grep "Last Changed Rev" | sed -e "s/[^0-9]//g")
 PASESFILE = $(NAME)-$(VERSION).pases
 
-.PHONY: update-builddir
-
 $(PASESFILE): $(FILES)
-	tar c --owner=nobody --group=users --transform s/^builddir\\///g -zf $(PASESFILE) $(FILES)
+	tar c --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES) $(PASDEF)
 
-builddir:
-	svn co $(SVNURL) builddir
-
-update-builddir: builddir
-	cd builddir ; svn up
+build:
+	svn co $(SVNURL) build
 
 clean:
-	rm -rf builddir
+	rm -rf build
 	rm $(PASESFILE)
-	rm $(TARFILE)
 
-$(FILES): update-builddir
+.update: build
+	cd build ; svn up
+
+$(FILES): .update

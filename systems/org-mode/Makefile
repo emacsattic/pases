@@ -23,7 +23,7 @@ build/doc/* \
 build/request-assign-future.txt \
 build/xemacs/README
 
-FILES = $(ELFILES) $(DOCFILES) $(PASDEF)
+FILES = $(ELFILES) $(DOCFILES)
 
 include ../generic-targz.mk
 include ../launchpad.mk

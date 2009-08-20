@@ -12,7 +12,7 @@ build/xml-rpc.el
 DOCFILES = \
 build/README
 
-FILES = $(ELFILES) $(DOCFILES) $(PASDEF)
+FILES = $(ELFILES) $(DOCFILES)
 
 include ../generic-targz.mk
 include ../launchpad.mk

@@ -17,7 +17,7 @@ builddir/icomplete+.el
 DOCFILES = 
 MISCFILES = 
 
-FILES = $(ELFILES) $(DOCFILES) $(MISCFILES) $(PASDEF)
+FILES = $(ELFILES) $(DOCFILES) $(MISCFILES)
 
 include ../generic-bzr.mk
 

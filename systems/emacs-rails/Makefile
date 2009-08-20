@@ -47,6 +47,6 @@ build/History \
 build/README \
 build/ChangeLog
 
-FILES = $(ELFILES) $(DOCFILES) $(PASDEF)
+FILES = $(ELFILES) $(DOCFILES)
 
 include ../generic-targz.mk
