@@ -225,7 +225,7 @@
 (luna-define-method pases:load :before ((s pases:system) &optional basedir)
   (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
-	  (pases:oos 'pases:load s))
+	  (pases:oos pases:load-op s))
 	(pases:system-depends-internal s)))
 
 (defmacro pases:defsystem (name &rest args)
