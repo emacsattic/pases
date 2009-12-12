@@ -94,7 +94,7 @@
 
 ;; pases:source-file
 (luna-define-class pases:source-file (pases:component)
-		   (load compile compile-thunk))
+		   (load compile compile-thunk optional))
 
 (luna-define-internal-accessors 'pases:source-file)
 
@@ -131,13 +131,17 @@
                             (concat (pases:component-name-internal f) ".elc")
                             targetdir)))
                       (rename-file (concat path "c") target-path)))
-	      (error "Error compiling %s " (pases:component-name-internal f))))))))
+              (if (not (pases:source-file-optional-internal f))
+                  (error "Error compiling %s " (pases:component-name-internal f))
+                (message "Error compiling %s " (pases:component-name-internal f)))))))))
 
 (defmacro pases:deffile (name &rest args)
   `(luna-make-entity 'pases:elisp-source
 		     :name ,name
                      ,@(if (not (plist-get args :compile))
                           '(:compile t))
+                     ,@(if (not (plist-get args :optional))
+                          '(:optional nil))
                      ,@(if (not (plist-get args :dep-op))
                           '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
                      ,@args))
