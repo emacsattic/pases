@@ -1,31 +1,36 @@
-* Pases
+=======
+ Pases
+=======
 
 Pases is a packaging and system definition system for Emacs.
 
-* Installing
+Installing
+~~~~~~~~~~
 
 To begin using Pases, unpack the distribution to a directory. We will
-assume that you have unpacked it to ~/share/emacs/pases-0.1/. Then add
-the following to your .emacs file:
+assume that you have unpacked it to ``~/share/emacs/pases-0.1/``. Then
+add the following to your .emacs file::
 
-(load (expand-file-name "~/share/emacs/pases-0.1/pases.el"))
+  (load (expand-file-name "~/share/emacs/pases-0.1/pases.el"))
 
 That is all you need. Either restart Emacs or evaluate that line.
 
-* Using
+Using
+~~~~~
 
-You can install packages with:
+You can install packages with::
 
-M-x pases:install-package
+  M-x pases:install-package
 
-and remove packages with:
+and remove packages with::
 
-M-X pases:uninstall-package
+  M-X pases:uninstall-package
 
 These commands will prompt for a package file to install, or a package
 name to uninstall.
 
-* Getting packages
+Getting packages
+~~~~~~~~~~~~~~~~
 
 Included in the distribution are a number of Makefiles for building
 packages (under the systems/ directory). From a directory, use make to
