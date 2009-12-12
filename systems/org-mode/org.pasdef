@@ -86,8 +86,8 @@
    ,(pases:deffile "contrib/lisp/org-git-link")
    ,(pases:deffile "contrib/lisp/org-interactive-query")
    ,(pases:deffile "contrib/lisp/org-invoice")
-   ,@(if (featurep 'jira)
-         (pases:deffile "contrib/lisp/org-jira"))
+   ,(pases:deffile "contrib/lisp/org-jira"
+                   :optional t)
    ,(pases:deffile "contrib/lisp/org-learn")
    ,(pases:deffile "contrib/lisp/org-mac-iCal")
    ,(pases:deffile "contrib/lisp/org-mairix")
@@ -116,24 +116,24 @@
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-R" 
 		   :compile nil)
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-asymptote")
-   ,@(if (featurep 'slime)
-         (pases:deffile "contrib/babel/lisp/langs/org-babel-clojure"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-clojure"
+                   :optional t)
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-css")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-ditaa")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-dot")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-emacs-lisp")
-   ,@(if (featurep 'gnuplot)
-         (pases:deffile "contrib/babel/lisp/langs/org-babel-gnuplot"))
-   ,@(if (featurep 'haskell)
-         (pases:deffile "contrib/babel/lisp/langs/org-babel-haskell"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-gnuplot"
+                   :optional t)
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-haskell"
+                   :optional t)
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-latex")
-   ,@(if (featurep 'tuareg)
-         (pases:deffile "contrib/babel/lisp/langs/org-babel-ocaml"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-ocaml"
+                   :optional t)
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-perl")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-python")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-ruby")
-   ,@(if (featurep 'sass-mode)
-         (pases:deffile "contrib/babel/lisp/langs/org-babel-sass"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-sass"
+                   :optional t)
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-screen")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-sh")
    ,(pases:deffile "contrib/babel/lisp/langs/org-babel-sql")
