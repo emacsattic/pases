@@ -2,11 +2,11 @@
 
 (pases:defsystem
  org-mode
- :version "6.29c"
+ :version "6.33f"
  :components
  `(,(pases:defdir "lisp")
-   ,(pases:deffile "lisp/org-macs")
-   ,(pases:deffile "lisp/org")
+
+   ;; main
    ,(pases:deffile "lisp/org-agenda")
    ,(pases:deffile "lisp/org-archive")
    ,(pases:deffile "lisp/org-ascii")
@@ -16,13 +16,17 @@
    ,(pases:deffile "lisp/org-clock")
    ,(pases:deffile "lisp/org-colview")
    ,(pases:deffile "lisp/org-compat")
+   ,(pases:deffile "lisp/org-crypt")
+   ,(pases:deffile "lisp/org-datetree")
    ,(pases:deffile "lisp/org-docbook")
-   ,(pases:deffile "lisp/org-exp")
    ,(pases:deffile "lisp/org-exp-blocks")
+   ,(pases:deffile "lisp/org-exp")
    ,(pases:deffile "lisp/org-faces")
    ,(pases:deffile "lisp/org-feed")
    ,(pases:deffile "lisp/org-footnote")
+   ,(pases:deffile "lisp/org-freemind")
    ,(pases:deffile "lisp/org-gnus")
+   ,(pases:deffile "lisp/org-habit")
    ,(pases:deffile "lisp/org-html")
    ,(pases:deffile "lisp/org-icalendar")
    ,(pases:deffile "lisp/org-id")
@@ -38,6 +42,7 @@
    ,(pases:deffile "lisp/org-macs")
    ,(pases:deffile "lisp/org-mew")
    ,(pases:deffile "lisp/org-mhe")
+   ,(pases:deffile "lisp/org-mobile")
    ,(pases:deffile "lisp/org-mouse")
    ,(pases:deffile "lisp/org-plot")
    ,(pases:deffile "lisp/org-protocol")
@@ -51,32 +56,39 @@
    ,(pases:deffile "lisp/org-w3m")
    ,(pases:deffile "lisp/org-wl")
    ,(pases:deffile "lisp/org-xoxo")
+   ,(pases:deffile "lisp/org")
+
+   ;; xemacs
    ,@(if (eq pases:emacs-variant :xemacs)
          (list (pases:defdir "./xemacs/")
                (pases:deffile "./xemacs/noutline")
                (pases:deffile "./xemacs/ps-print-invisible")
                (pases:deffile "lisp/org-colview-xemacs")))
+
+   ;; contrib
    ,(pases:defdir "contrib/lisp")
    ,(pases:deffile "contrib/lisp/htmlize")
    ,(pases:deffile "contrib/lisp/org-R")
    ,(pases:deffile "contrib/lisp/org-annotate-file")
-   ,(pases:deffile "contrib/lisp/org-annotation-helper")
+   ,(pases:deffile "contrib/lisp/org-babel-init")
    ,(pases:deffile "contrib/lisp/org-bookmark")
-   ,(pases:deffile "contrib/lisp/org-browser-url")
    ,(pases:deffile "contrib/lisp/org-checklist")
    ,(pases:deffile "contrib/lisp/org-choose")
    ,(pases:deffile "contrib/lisp/org-collector")
    ,(pases:deffile "contrib/lisp/org-contribdir")
    ,(pases:deffile "contrib/lisp/org-depend")
    ,(pases:deffile "contrib/lisp/org-elisp-symbol")
-   ,(pases:deffile "contrib/lisp/org-eval")
    ,(pases:deffile "contrib/lisp/org-eval-light")
+   ,(pases:deffile "contrib/lisp/org-eval")
    ,(pases:deffile "contrib/lisp/org-exp-bibtex")
    ,(pases:deffile "contrib/lisp/org-expiry")
    ,(pases:deffile "contrib/lisp/org-export-generic")
+   ,(pases:deffile "contrib/lisp/org-git-link")
    ,(pases:deffile "contrib/lisp/org-interactive-query")
+   ,(pases:deffile "contrib/lisp/org-invoice")
    ,@(if (featurep 'jira)
          (pases:deffile "contrib/lisp/org-jira"))
+   ,(pases:deffile "contrib/lisp/org-learn")
    ,(pases:deffile "contrib/lisp/org-mac-iCal")
    ,(pases:deffile "contrib/lisp/org-mairix")
    ,(pases:deffile "contrib/lisp/org-man")
@@ -86,13 +98,44 @@
    ,(pases:deffile "contrib/lisp/org-screen")
    ,(pases:deffile "contrib/lisp/org-special-blocks")
    ,(pases:deffile "contrib/lisp/org-toc")
+   ,(pases:deffile "contrib/lisp/org-track")
    ,(pases:deffile "contrib/lisp/org2rem")
    ,(pases:deffile "contrib/lisp/orgtbl-sqlinsert")
-   ,(pases:defdir "contrib/packages/org-export-freemind-0.1.0")
-   ,(pases:deffile
-     "contrib/packages/org-export-freemind-0.1.0/org-export-freemind-install")
-   ,(pases:deffile "contrib/packages/org-export-freemind-0.1.0/org-export-freemind")
+
+   ;; contrib/babel/lisp
+   ,(pases:defdir "contrib/babel/lisp")
+   ,(pases:deffile "contrib/babel/lisp/org-babel")
+   ,(pases:deffile "contrib/babel/lisp/org-babel-comint")
+   ,(pases:deffile "contrib/babel/lisp/org-babel-exp")
+   ,(pases:deffile "contrib/babel/lisp/org-babel-lob")
+   ,(pases:deffile "contrib/babel/lisp/org-babel-ref")
+   ,(pases:deffile "contrib/babel/lisp/org-babel-table")
+   ,(pases:deffile "contrib/babel/lisp/org-babel-tangle")
+
+   ;; contrib/babel/lisp/langs
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-R" 
+		   :compile nil)
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-asymptote")
+   ,@(if (featurep 'slime)
+         (pases:deffile "contrib/babel/lisp/langs/org-babel-clojure"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-css")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-ditaa")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-dot")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-emacs-lisp")
+   ,@(if (featurep 'gnuplot)
+         (pases:deffile "contrib/babel/lisp/langs/org-babel-gnuplot"))
+   ,@(if (featurep 'haskell)
+         (pases:deffile "contrib/babel/lisp/langs/org-babel-haskell"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-latex")
+   ,@(if (featurep 'tuareg)
+         (pases:deffile "contrib/babel/lisp/langs/org-babel-ocaml"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-perl")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-python")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-ruby")
+   ,@(if (featurep 'sass-mode)
+         (pases:deffile "contrib/babel/lisp/langs/org-babel-sass"))
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-screen")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-sh")
+   ,(pases:deffile "contrib/babel/lisp/langs/org-babel-sql")
+
    ,(pases:def-info-dir "doc")))
-
-
-
