@@ -54,7 +54,8 @@
 (defcustom pases:package-dir
   (expand-file-name "~/.pases.d/")
   "Directory to install user packages in."
-  :type 'directory)
+  :type 'directory
+  :group 'pases)
 
 (defvar pases:debug t)
 
