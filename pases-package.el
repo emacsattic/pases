@@ -22,6 +22,12 @@
 (require 'tar-mode)
 (require 'jka-compr)
 
+(defcustom pases:tar-bin
+  "tar"
+  "Program to use for untarring packages (in Emacs 23)."
+  :type 'string
+  :group 'pases)
+
 (unless (member "\\.pases\\'" (mapcar (lambda (vec) (elt vec 0))
                                      jka-compr-compression-info-list))
     (add-to-list 'jka-compr-compression-info-list
@@ -31,6 +37,28 @@
     (when (jka-compr-installed-p)
       (jka-compr-uninstall)
       (jka-compr-install)))
+
+(defun pases:untar-22 (package-path package-install-dir)
+  (save-excursion
+    (with-temp-buffer
+      (insert-file-contents package-path)
+      (let ((default-directory package-install-dir))
+        (tar-summarize-buffer)
+        (tar-untar-buffer)))))
+  
+(defun pases:untar-23 (package-path package-install-dir)
+  (message "%s %s" package-path package-install-dir)
+  (if (not (eq 0 (call-process pases:tar-bin nil nil nil
+                               "x" "-C" 
+                               (expand-file-name package-install-dir)
+                               "-zf" 
+                               (expand-file-name package-path))))
+      (error "Could not untar %s" package-path)))
+
+(defun pases:untar (package-path package-install-dir)
+  (if (eq emacs-major-version 23)
+      (pases:untar-23 package-path package-install-dir)
+    (pases:untar-22 package-path package-install-dir)))
 
 (defun pases:install-package (&optional package)
   (interactive)
@@ -49,12 +77,7 @@
     (if (file-exists-p package-install-dir)
 	(error "[pases] package already installed?")
       (make-directory package-install-dir))
-    (save-excursion
-      (with-temp-buffer
-	(insert-file-contents package-path)
-        (let ((default-directory package-install-dir))
-          (tar-summarize-buffer)
-          (tar-untar-buffer))))
+    (pases:untar package-path package-install-dir)
     (pases:load-sysdef-dir package-install-dir)
     (pases:load-all)
     (message "[pases] Successfully installed %s." package-install-dir)))
