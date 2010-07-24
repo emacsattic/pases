@@ -143,6 +143,6 @@
 
    ;; contrib/babel/lisp
    ,(pases:defdir "contrib/babel/lisp")
-   ,(pases:deffile "contrib/babel/langs/ob-oz")
+   ,(pases:deffile "contrib/babel/langs/ob-oz" :optional t)
 
    ,(pases:def-info-dir "doc")))
