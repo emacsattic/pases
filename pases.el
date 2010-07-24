@@ -21,11 +21,6 @@
 
 (add-to-list 'load-path (file-name-directory load-file-name))
 (load "luna")
-(load "pases-package")
-
-(defvar pases:central-registry
-  (list (expand-file-name "~/.pases.d/"))
-  "Central directory for pases systems.")
 
 (defvar pases:emacs-variant
   (if (featurep 'xemacs)
@@ -50,12 +45,6 @@
         ((eq pases:emacs-variant :xemacs)
          (getenv "HOST")))
   "The name of the host that Emacs is running on.")
-
-(defcustom pases:package-dir
-  (expand-file-name "~/.pases.d/")
-  "Directory to install user packages in."
-  :type 'directory
-  :group 'pases)
 
 (defvar pases:debug t)
 
@@ -242,20 +231,7 @@
 			  :pathname (file-name-directory (file-truename load-file-name))
 			  ,@args))))
 
-(defun pases:load-sysdefs ()
-  (mapc 'pases:load-sysdef-dir
-	pases:central-registry))
-
-(defun pases:load-sysdef-dir (dir)
-  (let ((files (directory-files dir t "\\.pasdef$")))
-    (mapc 'pases:load-sysdef files))
-  (let ((dirs (directory-files dir t "^[^\\.]")))
-    (mapc (lambda (d)
-	        (if (file-directory-p d)
-		    (pases:load-sysdef-dir d)))
-	  dirs)))
-
-(defun pases:load-sysdef (file)
+(defun pases:read-sysdef (file)
   (load-file file))
    
 (defun pases:oos (op sys)
@@ -265,11 +241,6 @@
       (funcall 'pases:operate op system-real))))
 
 (defvar pases:systems '())
- 
-(defun pases:load-all ()
-  (mapc (lambda (s)
-	  (pases:oos pases:load-op s))
-	pases:systems))
 
 (put 'emacs 'pases:system
      (luna-make-entity 
@@ -277,8 +248,12 @@
       :name "emacs"
       :version emacs-version))
 
-(if (not (file-exists-p pases:package-dir))
-    (make-directory pases:package-dir))
+ (defun pases:load-all ()
+  (mapc (lambda (s)
+	  (pases:oos pases:load-op s))
+	pases:systems))
 
-(pases:load-sysdefs)
+(load "pases-package")
+
+;; Load all systems.
 (pases:load-all)
