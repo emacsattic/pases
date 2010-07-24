@@ -1,0 +1,265 @@
+;; -*- mode: emacs-lisp -*-
+
+;; bootstrap, redefined in path-util
+(defun module-installed-p (module &optional paths)
+  "Return t if module is provided or exists in PATHS.
+If PATHS is omitted, `load-path' is used."
+  (or (featurep module)
+      (let ((file (symbol-name module)))
+        (or paths
+            (setq paths load-path)
+            )
+        (catch 'tag
+          (while paths
+            (let ((stem (expand-file-name file (car paths)))
+                  (sufs '(".elc" ".el"))
+                  )
+              (while sufs
+                (let ((file (concat stem (car sufs))))
+                  (if (file-exists-p file)
+                      (throw 'tag file)
+                    ))
+                (setq sufs (cdr sufs))
+                ))
+            (setq paths (cdr paths))
+            )))))
+
+(pases:defsystem
+ apel
+ :version "10.8"
+ :components
+ `(,(pases:defdir ".")
+
+   ;; apel core
+   ,(pases:deffile "alist")
+   ,(pases:deffile "calist")
+   ,(pases:deffile "path-util" :load t)
+   ,(pases:deffile "filename")
+
+   ;; emulation
+   ,(pases:deffile "static")
+   ,(pases:deffile "broken")
+   ,(pases:deffile "product")
+   ,(pases:deffile "apel-ver")
+   ,(pases:deffile "pym")
+
+   ;; [obsoleted modules] If you would like to
+   ;; install following, please activate them.
+
+   ;; ,(pases:deffile "atype")
+   ;; ,(pases:deffile "file-detect")
+   
+   ;; poe modules; poe modules depend on static.
+   ,@(cond
+      ;; XEmacs.
+      ((featurep 'xemacs)
+       (list (pases:deffile "poe-xemacs")
+             (pases:deffile "poe")))
+      ;; Emacs 19.29 and earlier. (yes, includes Emacs 19.29.)
+      ((and (= emacs-major-version 19)
+            (<= emacs-minor-version 29))
+       (list (pases:deffile "localhook")
+             (pases:deffile "poe")))
+      ;; Emacs 19.30 and later.
+      ((>= emacs-major-version 19)
+       (list (pases:deffile "poe")))
+      (t
+       ;; v18.
+       (list (pases:deffile "localhook")
+             (pases:deffile "env")
+             (pases:deffile "poe-18")
+             (pases:deffile "poe"))))
+
+   ;; pcustom modules; pcustom modules depend on poe.
+   ,@(if (and (module-installed-p 'custom)
+              ;; new custom requires widget.
+              (module-installed-p 'widget))
+         ;; if both 'custom and 'widget are found, we have new custom.
+         (list (pases:deffile "pcustom"))
+       ;; pcustom does (require 'custom) at compile-time, and tinycustom
+       ;; need to test existence of some custom macros at compile-time!
+       ;; so, we must compile tinycustom first.
+       (list (pases:deffile "tinycustom")
+             (pases:deffile "pcustom")))
+
+   ;; pccl modules; pccl modules depend on broken.
+   ,@(cond
+      ((featurep 'xemacs)
+       (cond
+        ;; XEmacs 21 w/ mule.
+        ((and (featurep 'mule)
+              (>= emacs-major-version 21))
+         (list (pases:deffile "pccl-20")
+               (pases:deffile "pccl")))
+        (t
+         (list (pases:deffile "pccl")))))
+      ((featurep 'mule)
+       (cond
+        ;; Emacs 20.
+        ((>= emacs-major-version 20)
+         (list (pases:deffile "pccl-20")
+               (pases:deffile "pccl")))
+        ;; Mule 1.* and 2.*.
+        (t
+         (list (pases:deffile "pccl-om")
+               (pases:deffile "pccl")))))
+      (t
+       (list (pases:deffile "pccl"))))
+
+   ;; pces modules; pces modules depend on poe.
+   ,@(cond
+      ((featurep 'xemacs)
+       (cond
+        ((featurep 'mule)
+         ;; XEmacs w/ mule.
+         ;; pces-xfc depends pces-20, so we compile pces-20 first.
+         (list (pases:deffile "pces-20")
+               (pases:deffile "pces-xm") 
+               (pases:deffile "pces-xfc")
+               (pases:deffile "pces")))
+        ((featurep 'file-coding)
+         ;; XEmacs w/ file-coding.
+         ;; pces-xfc depends pces-20, so we compile pces-20 first.
+         (list (pases:deffile "pces-20") 
+               (pases:deffile "pces-xfc") 
+               (pases:deffile "pces"))))
+       (t
+        (list (pases:deffile "pces-raw") 
+              (pases:deffile "pces"))))
+      ((featurep 'mule)
+       (cond
+        ;; Emacs 20.3 and later.
+        ((and (fboundp 'set-buffer-multibyte)
+              (subrp (symbol-function 'set-buffer-multibyte)))
+         ;; pces-e20 depends pces-20, so we compile pces-20 first.
+         (list (pases:deffile "pces-20") 
+               (pases:deffile "pces-e20") 
+               (pases:deffile "pces")))
+        ;; Emacs 20.1 and 20.2.
+        ((= emacs-major-version 20)
+         ;; pces-e20 depends pces-20, so we compile pces-20 first.
+         (list (pases:deffile "pces-20")
+               (pases:deffile "pces-e20_2")
+               (pases:deffile "pces-e20")
+               (pases:deffile "pces")))
+        (t
+         ;; Mule 1.* and 2.*.
+         (list (pases:deffile "pces-om") 
+               (pases:deffile "pces")))))
+      ((boundp 'NEMACS)
+       ;; Nemacs.
+       (list (pases:deffile "pces-nemacs")
+             (pases:deffile "pces")))
+      (t
+       (list (pases:deffile "pces-raw") 
+             (pases:deffile "pces"))))
+
+   ;; poem modules; poem modules depend on pces.
+   ,@(cond
+      ((featurep 'mule)
+       (cond
+        ((featurep 'xemacs)
+         ;; XEmacs w/ mule.
+         (list (pases:deffile "poem-xm") 
+               (pases:deffile "poem")))
+        ((>= emacs-major-version 20)
+         (if (and (fboundp 'set-buffer-multibyte)
+                         (subrp (symbol-function 'set-buffer-multibyte)))
+             ;; Emacs 20.3 and later.
+             (list (pases:deffile "poem-e20_3")
+                   (pases:deffile "poem-e20")
+                   (pases:deffile "poem"))
+           ;; Emacs 20.1 and 20.2.
+           (list (pases:deffile "poem-e20_2") 
+                 (pases:deffile "poem-e20") 
+                 (pases:deffile "poem"))))
+        (t
+         ;; Mule 1.* and 2.*.
+         (list (pases:deffile "poem-om") 
+               (pases:deffile "poem")))))
+      ((boundp 'NEMACS)
+              (list (pases:deffile "poem-nemacs") 
+                    (pases:deffile "poem")))
+      (t
+       ((pases:deffile "poem-ltn1") 
+        (pases:deffile "poem"))))
+
+   ;; mcharset modules; mcharset modules depend on poem and pcustom.
+   ,@(cond
+      ((featurep 'mule)
+       (cond
+        ((featurep 'xemacs)
+         ;; XEmacs w/ mule.
+         (if (featurep 'utf-2000)
+             ;; XEmacs w/ UTF-2000.
+             (list (pases:deffile "mcs-20")
+                   (pases:deffile "mcs-xmu" :compile nil)
+                   (pases:deffile "mcs-xm")
+                   (pases:deffile "mcharset"))
+           ;; mcs-xm depends mcs-20, so we compile mcs-20 first.
+           (list (pases:deffile "mcs-20") 
+                 (pases:deffile "mcs-xmu")
+                 (pases:deffile "mcs-xm")
+                 (pases:deffile "mcharset"))))
+        ((>= emacs-major-version 20)
+         ;; Emacs 20 and later.
+         ;; mcs-e20 depends mcs-20, so we compile mcs-20 first.
+         (list (pases:deffile "mcs-20")
+               (pases:deffile "mcs-e20")
+               (pases:deffile "mcharset")))
+        (t
+         ;; Mule 1.* and 2.*.
+         (list (pases:deffile "mcs-om") 
+               (pases:deffile "mcharset")))))
+      ((boundp 'NEMACS)
+       ;; Nemacs.
+       (list (pases:deffile "mcs-nemacs") 
+             (pases:deffile "mcharset")))
+      (t
+       (list (pases:deffile "mcs-ltn1") 
+             (pases:deffile "mcharset"))))
+   
+   ;; punting, apel does some magic here, not sure what for.
+   ,(pases:deffile "timezone")
+
+   ;; invisible modules; provided for backward compatibility with old "tm".
+   ,@(cond
+      ((featurep 'xemacs)
+       ;; XEmacs.
+       (list (pases:deffile "inv-xemacs") 
+             (pases:deffile "invisible")))
+      ((>= emacs-major-version 23)
+       ;; Emacs 23 and later
+       (list (pases:deffile "inv-23")
+             (pases:deffile "invisible")))
+      ((>= emacs-major-version 19)
+       ;; Emacs 19 and later.
+       (list (pases:deffile"inv-19") 
+             (pases:deffile "invisible")))
+      (t
+       ;; v18.
+       (list (pases:deffile "inv-18") 
+             (pases:deffile "invisible"))))
+
+   ;; emu modules; provided for backward compatibility with old "tm".
+   ,@(if (and (featurep 'mule)
+              (< emacs-major-version 20))
+         ;; Mule 1.* and 2.*.
+         (list (pases:deffile "emu-mule")
+               (pases:deffile "emu"))
+       (list (pases:deffile "emu")))
+
+   ;; emu submodules; text/richtext and text/enriched support.
+   ,(if (if (featurep 'xemacs)
+            (or (>= emacs-major-version 20)
+                (and (= emacs-major-version 19)
+                     (>= emacs-minor-version 14)))
+          (or (>= emacs-major-version 20)
+              (and (= emacs-major-version 19)
+                   (>= emacs-minor-version 29))))
+        ;; XEmacs 19.14 and later, or Emacs 19.29 and later.
+        (pases:deffile "richtext")
+      (pases:deffile "tinyrich"))
+   
+   ;; mule-caesar.el; part of apel-modules, but it is version-dependent.
+   ,(pases:deffile "mule-caesar")))
