@@ -60,10 +60,21 @@
       (apply 'message args)))
 
 (defsubst pases:mk-symbol (s)
-  (if (stringp module) (intern s) s))
+  (if (stringp s) (intern s) s))
 
 (defsubst pases:mk-list (l)
   (if (listp l) l (list l)))
+
+(defvar pases:file-blacklist '()
+  "Blacklist of files to not load.")
+
+;; (defadvice load (around pases:load-blacklist
+;;                         (file))
+;;   "Disable some files from loading."
+;;   (if (not (member file pases:do-file-blacklist))
+;;       ad-do-it))
+
+;; (ad-activate 'load)
 
 ;; borrowed from apel
 (defun pases:module-installed-p (module)
@@ -101,16 +112,22 @@
         (funcall 'pases:operate (symbol-value dep-op) component parent))
     (funcall (pases:op-func-internal op) component parent)))
 
-(setq pases:load-op (luna-make-entity 'pases:op :func 'pases:load :name 'pases:load-op))
+(setq pases:load-op (luna-make-entity 'pases:op
+                                      :func 'pases:load
+                                      :name 'pases:load-op))
+(setq pases:unload-op (luna-make-entity 'pases:op
+                                        :func 'pases:unload 
+                                        :name 'pases:unload-op))
 (setq pases:compile-op (luna-make-entity 'pases:op :func 'pases:compile :name 'pases:compile-op))
   
 ;; pases:component
 (luna-define-class pases:component nil 
-		   (name version dependencies pathname dep-op))
+		   (name version dependencies pathname dep-op loaded))
 
 (luna-define-internal-accessors 'pases:component)
 
 (luna-define-generic pases:load (component &optional parent))
+(luna-define-generic pases:unload (component &optional parent))
 (luna-define-generic pases:compile (component &optional parent))
 (luna-define-generic pases:operate (component operation &optional args))
 
@@ -119,6 +136,12 @@
 		   (load compile compile-thunk optional))
 
 (luna-define-internal-accessors 'pases:source-file)
+
+(luna-define-method pases:load ((c pases:component) &rest args)
+  (pases:component-set-loaded-internal c t))
+
+(luna-define-method pases:unload ((c pases:component) &rest args)
+  (pases:component-set-loaded-internal c nil))
 
 ;;(luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
 ;;  (pases:component-set-dep-op-internal file
@@ -133,7 +156,7 @@
 
 (luna-define-internal-accessors 'pases:elisp-source)
 
-(luna-define-method pases:load ((file pases:elisp-source) &optional parent)
+(luna-define-method pases:load :before ((file pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent)))
     (pases:debug-message "[pases] loading %s from %s." (pases:component-name-internal c) basedir)
     (if (pases:source-file-load-internal file)
@@ -141,6 +164,11 @@
             (load (pases:component-pathname-internal file))
           (load (expand-file-name (pases:component-name-internal file)
                                   basedir))))))
+
+(luna-define-method pases:unload :before ((file pases:elisp-source) &optional parent)
+  (let ((module (pases:mk-symbol (pases:component-name-internal file))))
+    (if (featurep module)
+        (unload-feature module))))
 
 (luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
@@ -210,7 +238,7 @@
 (luna-define-class pases:info-dir (pases:component))
 (luna-define-internal-accessors 'pases:info-dir)
 
-(luna-define-method pases:load ((info-dir pases:info-dir) &optional parent)
+(luna-define-method pases:load :before ((info-dir pases:info-dir) &optional parent)
   (let* ((basedir (pases:component-pathname-internal parent))
          (dir-name (expand-file-name (pases:component-name-internal info-dir)
                                      basedir)))
@@ -230,11 +258,18 @@
 
 (luna-define-internal-accessors 'pases:source-dir)
 
-(luna-define-method pases:load ((dir pases:source-dir) &optional parent)
+(luna-define-method pases:load :before ((dir pases:source-dir) &optional parent)
   (let* ((basedir (pases:component-pathname-internal parent))
          (fullpath (expand-file-name (pases:component-name-internal dir) basedir)))
     (pases:debug-message "[pases] loading dir: %s." fullpath)
     (add-to-list 'load-path fullpath)))
+
+(luna-define-method pases:unload ((dir pases:source-dir) &optional parent)
+  (let* ((basedir (pases:component-pathname-internal parent))
+         (fullpath (expand-file-name (pases:component-name-internal dir) basedir))
+         (mem (member fullpath load-path)))
+    (if mem
+        (setq load-path (delq (car mem) load-path)))))
 
 (defmacro pases:defdir (name &rest args)
   `(luna-make-entity 'pases:source-dir
@@ -250,11 +285,18 @@
 
 (luna-define-internal-accessors 'pases:module)
 
-(luna-define-method pases:load ((m pases:module) &optional parent)
+(luna-define-method pases:load :before ((m pases:module) &optional parent)
   (pases:debug-message "[pases] loading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:load-op c m))
+          (pases:module-components-internal m)))
+
+(luna-define-method pases:unload :before ((m pases:module) &optional parent)
+  (pases:debug-message "[pases] unloading module components from %s."
+		       (pases:component-pathname-internal m))
+  (mapc (lambda (c)
+	  (pases:operate pases:unload-op c m))
           (pases:module-components-internal m)))
 
 ;; pases:system
@@ -284,7 +326,7 @@
 (defun pases:oos (op sys)
   (let ((system-real (get sys 'pases:system)))
     (if (not system-real)
-        (error "[pases] System %s is not loaded." sys) 
+        (error "[pases] System %s is not defined." sys) 
       (funcall 'pases:operate op system-real))))
 
 (defvar pases:systems '())
