@@ -6,8 +6,8 @@
  :components
  (list (pases:defdir ".")
        (pases:deffile "confluence")
-       (pases:deffile "xml-rpc")
-       ))
-
-(autoload 'confluence-get-page "confluence" nil t)
-(autoload 'confluence-search "confluence" nil t)
+       (pases:deffile "xml-rpc"))
+ :after-load-eval (progn (autoload 'confluence-get-page "confluence" nil t)
+                         (autoload 'confluence-search "confluence" nil t))
+ :after-unload-eval (progn (fmakunbound 'confluence-get-page)
+                           (fmakunbound 'confluence-search)))
