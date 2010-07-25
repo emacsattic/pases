@@ -330,6 +330,9 @@
   (put name 'pases:system nil)
   (setq pases:system (delq name pases:systems)))
    
+(defun pases:system-defined? (name)
+  (not (not (get name 'pases:system))))
+
 (defun pases:oos (op sys)
   (let ((system-real (get sys 'pases:system)))
     (if (not system-real)
