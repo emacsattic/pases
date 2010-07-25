@@ -128,7 +128,8 @@
 ;; pases:elisp-source
 (luna-define-class pases:elisp-source
                    (pases:source-file)
-		   (depends))
+		   (compile-after
+                    only-if))
 
 (luna-define-internal-accessors 'pases:elisp-source)
 
@@ -143,11 +144,14 @@
 
 (luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
-        (depends (pases:elisp-source-depends-internal f))
+        (compile-after (pases:elisp-source-compile-after-internal f))
+        (only-if (pases:elisp-source-only-if-internal f))
         (targetdir))
     (if (and (pases:source-file-compile-internal f)
-             (or (not depends)
-                 (pases:modules-installed-p depends)))
+             (or (not compile-after)
+                 (pases:modules-installed-p compile-after))
+             (or (not only-if)
+                 (funcall only-if)))
         (progn
           (let ((path (expand-file-name
                        (concat (pases:component-name-internal f) ".el")
@@ -166,14 +170,18 @@
 
 (defmacro pases:deffile (name &rest args)
   `(luna-make-entity 'pases:elisp-source
-		     :name ,name
-                     ,@(if (not (plist-get args :compile))
-                          '(:compile t))
-                     ,@(if (not (plist-get args :optional))
-                          '(:optional nil))
-                     ,@(if (not (plist-get args :dep-op))
-                          '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
-                     ,@args))
+                     :name ,name
+                     ,@args
+                     ,@(if (not (plist-member args :compile))
+                           '(:compile t))
+                     ,@(if (not (plist-member args :optional))
+                           '(:optional nil))
+                     ,@(if (not (plist-member args :dep-op))
+                           '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
+                     ,@(if (plist-member args :only-if)
+                           `(:only-if
+                             (lambda ()
+                               ,(plist-get args :only-if))))))
 
 ;; pases:texi-file
 ;; (luna-define-class pases:texi-source (pases:source-file))
@@ -251,7 +259,7 @@
 
 ;; pases:system
 (luna-define-class pases:system (pases:module)
-		   (depends version))
+		   (load-after version))
 
 (luna-define-internal-accessors 'pases:system)
 
@@ -259,7 +267,7 @@
   (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
-	(pases:mk-list (pases:system-depends-internal s))))
+	(pases:mk-list (pases:system-load-after-internal s))))
 
 (defmacro pases:defsystem (name &rest args)
   `(progn
