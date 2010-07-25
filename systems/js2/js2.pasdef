@@ -5,7 +5,10 @@
  :version "20090723b"
  :components
  (list (pases:defdir ".")
-       (pases:deffile "js2")))
-
-(autoload 'js2-mode "js2" nil t)
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+       (pases:deffile "js2"))
+ :after-load-eval (progn (autoload 'js2-mode "js2" nil t)
+                         (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode)))
+ :after-unload-eval (progn (fmakunbound 'js2-mode)
+                           (let ((m (assoc "\\.js$" auto-mode-alist)))
+                             (if (and m (eq (cdr m) 'js2-mode))
+                                 (setq auto-mode-alist (delq m auto-mode-alist))))))
