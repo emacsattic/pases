@@ -209,8 +209,10 @@ If optional argument VERSION is supplied, checks the version."
   (interactive (list (pases:completing-read-enabled-package)))
   (let ((path (pases:enabled-package-path name))
         (version (pases:enabled-version name)))
+    (pases:oos pases:unload-op (pases:mk-symbol name))
+    (pases:undef-system (pases:mk-symbol name))
     (rename-file path (concat path "_"))
-    (message "[pases] Disabled %s (%s). Restart emacs to ensure proper functionality."
+    (message "[pases] Disabled %s (%s). Restart emacs in case of problems."
              name version)))
 
 (defun pases:enable-package (name version)
@@ -229,7 +231,8 @@ If optional argument VERSION is supplied, checks the version."
                  name version old-version)))
     (rename-file path (substring path 0 -1))
     (pases:read-package-dir (pases:enabled-package-path name))
-    (message "[pases] Enabled %s (%s). Restart emacs to ensure proper functionality."
+    (pases:oos pases:load-op (pases:mk-symbol name))
+    (message "[pases] Enabled %s (%s). Restart emacs in case of problems."
              name version)))
 
 (defun pases:install-package (&optional package)
@@ -252,7 +255,7 @@ If optional argument VERSION is supplied, checks the version."
     (make-directory package-install-dir)
     (pases:untar package-path package-install-dir)
     (pases:read-package-dir package-install-dir)
-    (pases:load-all)
+    (pases:oos pases:load-op (pases:mk-symbol name))
     (message "[pases] Successfully installed %s (%s) to %s." name version
              pases:package-install-dir)))
 
@@ -329,8 +332,12 @@ that package."
     (if (y-or-n-p
        (format "Are you sure that you want to remove all files in %s? " package-path))
         (progn
+          (if (pases:system-defined?  (pases:mk-symbol name))
+               (progn
+                 (pases:oos pases:unload-op (pases:mk-symbol name))
+                 (pases:undef-system (pases:mk-symbol name))))
           (funcall recurse-delete package-path)
-          (message "[pases] Uninstalled %s (%s). Restart emacs for changes to take affect."
+          (message "[pases] Uninstalled %s (%s). Restart emacs in case of problems."
                    name version)
           (let ((other-versions (assoc name (pases:disabled-packages))))
             (if (and was-enabled 
