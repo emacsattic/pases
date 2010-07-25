@@ -58,6 +58,32 @@
       (jka-compr-uninstall)
       (jka-compr-install)))
 
+(defun pases:merge-into-alist (alist elm)
+  "Merge elm into alist, appeneding the values of elm to any
+existing values in alist with the same key, sorting them."
+  (let* ((key (car elm))
+	 (val (cdr elm))
+	 (old (assoc key alist)))
+    (if (null old)
+	(cons elm alist)
+      ;; assq is OK because we are using the actual old key, which is eq to itself
+      (let ((new-alist (assq-delete-all (car old) alist))
+            (new-val (sort (if (listp val)
+                               (append val (cdr old))
+                             (append (list val) (cdr old))) 'string<)))
+	(cons (cons key new-val)
+              new-alist)))))
+
+(defun pases:merge-alists (a b)
+  "Merge two alists, with pases:merge-into-alist."
+  (let ((new-alist (copy-alist a)))
+    (mapcar
+     (lambda (elm)
+       (setq new-alist 
+	     (pases:merge-into-alist new-alist elm)))
+     b)
+    new-alist))
+
 (defun pases:untar-22 (tar dir)
   (save-excursion
     (with-temp-buffer
@@ -71,7 +97,7 @@
 		    "x" "-C" (expand-file-name dir)
 		    "-zf" (expand-file-name tar))))
   (if (not (eq 0 (apply 'call-process args)))
-      (error "Could not untar %s into %s." tar dir))))
+      (error "[pases] Could not untar %s into %s." tar dir))))
 
 (defun pases:untar (tar dir)
   (if (eq emacs-major-version 23)
@@ -87,35 +113,127 @@
       (match-string-no-properties 1 name-version)))
     
 (defun pases:check-old-versions (name version)
-  (if (pases:find-package-path name version)
-      (error "[pases] package already installed?"))
-  (let ((old-version (pases:enabled-package-version name)))
+  (if (pases:package-enabled? name version)
+      (error "[pases] package already installed"))
+  (if (pases:package-disabled? name version)
+      (if (y-or-n-p
+           (format "Package %s (%s) installed but disabled; enable? "
+                   old-version name))
+          (pases:enable-package name version)))
+  (let ((old-version (pases:enabled-version name)))
     (if old-version
-        (if (yes-or-no-p
-             (format "Another version (%s) of %s installed; remove? "
+        (if (y-or-n-p
+             (format "Another version (%s) of %s installed; uninstall? "
                      old-version name))
             (pases:uninstall-package name)
           (progn
             (message "OK, disabling old version.")
-            (pases:disable-package name old-version))))))
+            (pases:disable-package name))))))
 
-(defun pases:find-package-path (name version)
-  "Find the dir path of a package with a given name & version."
-  (let ((path))
+(defun pases:enabled-package-path (name)
+  "Returns the path of the currently enabled version of package
+with NAME, or nil if no current version is enabled."
+  (let ((version (pases:enabled-version name))
+        path)
     (mapc (lambda (dir)
 	    (let ((fullpath (expand-file-name 
-			     (concat name "-" version)
-			     dir)))
+			     (concat name "-" version) dir)))
 	      (if (file-directory-p fullpath)
-		  (setq path fullpath))))
+                  (setq path fullpath))))
 	  pases:package-dirs)
     path))
 
-(defun pases:disable-package (name version)
-  (let ((path (pases:find-package-path name version)))
-    (rename-file path (concat path "_"))))
+(defun pases:installed-package-path (name version)
+  "Returns the path of a given version of package with NAME, or
+nil if no current version is installed."
+  (if (string= (pases:enabled-version name)
+               version)
+      (pases:enabled-package-path name)
+    (pases:disabled-package-path name version)))
+
+(defun pases:disabled-package-path (name version)
+  "Returns the path of a disabled version of package with NAME
+and VERSION, or nil if no such disabled version exists."
+  (let (path)
+    (mapc (lambda (dir)
+	    (let ((fullpath (expand-file-name 
+			     (concat name "-" version "_") dir)))
+	      (if (file-directory-p fullpath)
+                  (setq path fullpath))))
+	  pases:package-dirs)
+    path))
+
+(defun pases:package-enabled? (name &optional version)
+  "Return t if the package with NAME is installed & enabled; nil otherwise.
+If optional argument VERSION is supplied, checks the version."
+  (let ((info (assoc name (pases:enabled-packages))))
+    (and info (or (not version)
+                  (string= version (cdr info))))))
+
+(defun pases:package-disabled? (name &optional version)
+  "Return t if the package with NAME is installed & disabled; nil otherwise.
+If optional argument VERSION is supplied, checks the version."
+  (let ((info (assoc name (pases:disabled-packages))))
+    (and info (or (not version)
+                  (and (member version (cdr info))
+                       t)))))
+
+(defun pases:completing-read-enabled-package ()
+  (completing-read "Package: " 
+                   (mapcar (lambda (p) (car p)) (pases:enabled-packages))))
+
+(defun pases:completing-read-package-version (packages)
+  (let* ((name (completing-read 
+                "Package: " 
+                (mapcar (lambda (p) (car p)) packages)))
+         (versions (cdr (assoc name packages)))
+         (version (pases:maybe-completing-read-version versions)))
+    (list name version)))
+
+(defun pases:maybe-completing-read-version (versions)
+  (if (not (listp versions))
+      versions
+    (if (eq 1 (length versions))
+      (car versions)
+      (completing-read "Version: " versions))))
+
+(defun pases:completing-read-installed-package ()
+  (pases:completing-read-package-version
+   (pases:installed-packages)))
+
+(defun pases:completing-read-disabled-package ()
+  (pases:completing-read-package-version
+   (pases:disabled-packages)))
+  
+(defun pases:disable-package (name)
+  (interactive (list (pases:completing-read-enabled-package)))
+  (let ((path (pases:enabled-package-path name))
+        (version (pases:enabled-version name)))
+    (rename-file path (concat path "_"))
+    (message "[pases] Disabled %s (%s). Restart emacs to ensure proper functionality."
+             name version)))
+
+(defun pases:enable-package (name version)
+  (interactive (pases:completing-read-disabled-package))
+  (if (not (pases:package-disabled? name version))
+      (error "[pases] Package %s (%s) is not disabled." name version))
+  (if (pases:package-enabled? name version)
+      (error "[pases] Package %s (%s) is already enabled." name version))
+  (let ((old-version (pases:enabled-version name))
+        (path (pases:disabled-package-path name version)))
+    (if old-version
+        (if (y-or-n-p
+             (format "%s (%s) enabled; disable? " name old-version))
+            (pases:disable-package name)
+          (error "[pases] Cannot enable %s (%s) without disabling other version (%s)"
+                 name version old-version)))
+    (rename-file path (substring path 0 -1))
+    (pases:read-package-dir (pases:enabled-package-path name))
+    (message "[pases] Enabled %s (%s). Restart emacs to ensure proper functionality."
+             name version)))
 
 (defun pases:install-package (&optional package)
+  "Install a pases package."
   (interactive)
   (let* ((package-path-p (lambda (f) (or (file-directory-p f) 
                                          (string= (file-name-extension f)
@@ -133,7 +251,7 @@
     (pases:check-old-versions name version)
     (make-directory package-install-dir)
     (pases:untar package-path package-install-dir)
-    (pases:read-package package-install-dir)
+    (pases:read-package-dir package-install-dir)
     (pases:load-all)
     (message "[pases] Successfully installed %s (%s) to %s." name version
              pases:package-install-dir)))
@@ -155,31 +273,6 @@
 			    (pases:enabled-packages-in-dir dir))))
 	    pases:package-dirs)
     enabled-packages))
-
-(defun pases:merge-into-alist (alist elm)
-  "Merge elm into alist, appeneding the values of elm to any
-existing values in alist with the same key, sorting them. elm
-should be a list, not a cons cell."
-  (let* ((key (car elm))
-	 (val (cdr elm))
-	 (old (assoc key alist)))
-    (if (null old)
-	(cons elm alist)
-      ;; assq is OK because we are using the actual old key, which is eq to itself
-      (let ((new-alist (assq-delete-all (car old) alist)))
-	(cons (cons key
-		    (sort (append val (cdr old)) 'string<))
-	      new-alist)))))
-
-(defun pases:merge-alists (a b)
-  "Merge two alists, with pases:merge-into-alist."
-  (let ((new-alist (copy-alist a)))
-    (mapcar
-     (lambda (elm)
-       (setq new-alist 
-	     (pases:merge-into-alist new-alist elm)))
-     b)
-    new-alist))
 
 (defun pases:disabled-packages-in-dir (package-dir)
   "Return an alist of disabled packages in dir with a list of their versions; e.g.:
@@ -205,19 +298,25 @@ should be a list, not a cons cell."
      pases:package-dirs)
     disabled-packages))
 
-(defun pases:enabled-package-version (package-name)
+(defun pases:installed-packages ()
+  "Return an alist of all installed (disabled and enabled)
+packages with a list of their versions; e.g.:
+  ((\"name\" . (\"1.0\", \"2.0\")))"
+  (pases:merge-alists (pases:disabled-packages)
+                      (pases:enabled-packages)))
+
+(defun pases:enabled-version (package-name)
   "Given a package name, returns the currently enabled version of
 that package."
   (cdr (assoc-string package-name (pases:enabled-packages))))
 
-(defun pases:enabled-package-path (name)
-  (pases:find-package-path name (pases:enabled-package-version name)))
-
-(defun pases:uninstall-package (package-name)
+(defun pases:uninstall-package (name version)
+  "Uninstall a package."
   (interactive
-   (list (completing-read "Package: " 
-			  (mapcar (lambda (p) (car p)) (pases:enabled-packages)))))
-  (let* ((package-path (pases:enabled-package-path package-name))
+   (pases:completing-read-installed-package))
+  (let* ((package-path (pases:installed-package-path name version))
+         (was-enabled (string= version
+                           (pases:enabled-version name)))
          (recurse-delete (lambda (d)
                            (loop for f in (directory-files d)
                                  do (let ((path (expand-file-name f d)))
@@ -227,12 +326,19 @@ that package."
                                               (funcall recurse-delete path)
                                             (delete-file path)))))
                            (delete-directory d))))
-    (if (yes-or-no-p
+    (if (y-or-n-p
        (format "Are you sure that you want to remove all files in %s? " package-path))
         (progn
           (funcall recurse-delete package-path)
-          (message "The package %s has been removed. However, please note that the package will remain loaded into your running Emacs until restart."
-                   package-name)))))
+          (message "[pases] Uninstalled %s (%s). Restart emacs for changes to take affect."
+                   name version)
+          (let ((other-versions (assoc name (pases:disabled-packages))))
+            (if (and was-enabled 
+                     other-versions)
+                (if (y-or-n-p (format "Other version of %s exists; enable? " name))
+                    (pases:enable-package
+                     name
+                     (pases:maybe-completing-read-version (cdr other-versions))))))))))
 
 (defun pases:read-packages ()
   (mapc 'pases:read-packages-dir pases:package-dirs))
@@ -240,11 +346,11 @@ that package."
 (defun pases:read-packages-dir (dir)
   "Process a directory of packages, reading each package in it."
   (mapc (lambda (package)
-          (pases:read-package (expand-file-name 
-                               (concat (car package) "-" (cdr package)) dir)))
+          (pases:read-package-dir (expand-file-name 
+                                   (concat (car package) "-" (cdr package)) dir)))
         (pases:enabled-packages-in-dir dir)))
 
-(defun pases:read-package (package-dir)
+(defun pases:read-package-dir (package-dir)
   "Read a package directory, loading its pasdef file."
   (let ((files (directory-files package-dir t "\\.pasdef$")))
     (if (not (null files))
