@@ -20,7 +20,7 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 (add-to-list 'load-path (file-name-directory load-file-name))
-(load "luna")
+(load "pases-luna")
 
 (defvar pases:emacs-variant
   (if (featurep 'xemacs)
