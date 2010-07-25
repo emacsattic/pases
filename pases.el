@@ -122,7 +122,8 @@
   
 ;; pases:component
 (pases:luna-define-class pases:component nil 
-		   (name version dependencies pathname dep-op loaded))
+		   (name version dependencies pathname dep-op loaded
+                         after-load-eval after-unload-eval))
 
 (pases:luna-define-internal-accessors 'pases:component)
 
@@ -138,10 +139,14 @@
 (pases:luna-define-internal-accessors 'pases:source-file)
 
 (pases:luna-define-method pases:load ((c pases:component) &rest args)
-  (pases:component-set-loaded-internal c t))
+  (pases:component-set-loaded-internal c t)
+  (if (pases:component-after-load-eval-internal c)
+      (funcall (pases:component-after-load-eval-internal c))))
 
 (pases:luna-define-method pases:unload ((c pases:component) &rest args)
-  (pases:component-set-loaded-internal c nil))
+  (pases:component-set-loaded-internal c nil)
+  (if (pases:component-after-unload-eval-internal c)
+      (funcall (pases:component-after-unload-eval-internal c))))
 
 ;;(pases:luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
 ;;  (pases:component-set-dep-op-internal file
@@ -316,12 +321,20 @@
 
 (defmacro pases:defsystem (name &rest args)
   `(progn
-     (add-to-list 'pases:systems (quote ,name))
      (put (quote ,name) 'pases:system
 	  (pases:luna-make-entity 'pases:system
 			  :name (symbol-name (quote ,name))
 			  :pathname (file-name-directory (file-truename load-file-name))
-			  ,@args))))
+			  ,@args
+                          ,@(if (plist-member args :after-load-eval)
+                                `(:after-load-eval
+                                  (lambda ()
+                                    ,(plist-get args :after-load-eval))))
+                          ,@(if (plist-member args :after-unload-eval)
+                                `(:after-unload-eval
+                                  (lambda ()
+                                    ,(plist-get args :after-unload-eval))))))
+     (add-to-list 'pases:systems (quote ,name))))
 
 (defun pases:read-sysdef (file)
   (load-file file))
