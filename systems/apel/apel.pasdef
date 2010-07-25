@@ -1,29 +1,4 @@
 ;; -*- mode: emacs-lisp -*-
-
-;; bootstrap, redefined in path-util
-(defun module-installed-p (module &optional paths)
-  "Return t if module is provided or exists in PATHS.
-If PATHS is omitted, `load-path' is used."
-  (or (featurep module)
-      (let ((file (symbol-name module)))
-        (or paths
-            (setq paths load-path)
-            )
-        (catch 'tag
-          (while paths
-            (let ((stem (expand-file-name file (car paths)))
-                  (sufs '(".elc" ".el"))
-                  )
-              (while sufs
-                (let ((file (concat stem (car sufs))))
-                  (if (file-exists-p file)
-                      (throw 'tag file)
-                    ))
-                (setq sufs (cdr sufs))
-                ))
-            (setq paths (cdr paths))
-            )))))
-
 (pases:defsystem
  apel
  :version "10.8"
@@ -71,9 +46,9 @@ If PATHS is omitted, `load-path' is used."
              (pases:deffile "poe"))))
 
    ;; pcustom modules; pcustom modules depend on poe.
-   ,@(if (and (module-installed-p 'custom)
+   ,@(if (and (pases:module-installed-p 'custom)
               ;; new custom requires widget.
-              (module-installed-p 'widget))
+              (pases:module-installed-p 'widget))
          ;; if both 'custom and 'widget are found, we have new custom.
          (list (pases:deffile "pcustom"))
        ;; pcustom does (require 'custom) at compile-time, and tinycustom
