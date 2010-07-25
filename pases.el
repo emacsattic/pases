@@ -168,7 +168,10 @@
 (pases:luna-define-method pases:unload :before ((file pases:elisp-source) &optional parent)
   (let ((module (pases:mk-symbol (pases:component-name-internal file))))
     (if (featurep module)
-        (unload-feature module))))
+        (condition-case err
+            (unload-feature module)
+          (error
+           (message "[pases] Caught error unloading %s: %s." module (cdr err)))))))
 
 (pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
