@@ -59,6 +59,38 @@
   (if pases:debug
       (apply 'message args)))
 
+(defsubst pases:mk-symbol (s)
+  (if (stringp module) (intern s) s))
+
+(defsubst pases:mk-list (l)
+  (if (listp l) l (list l)))
+
+;; borrowed from apel
+(defun pases:module-installed-p (module)
+  (let ((module-symbol (pases:mk-symbol module))
+        (paths load-path))
+    (or (featurep module-symbol)
+        (let ((file (symbol-name module-symbol)))
+          (catch 'tag
+            (while paths
+              (let ((stem (expand-file-name file (car paths)))
+                    (sufs '(".elc" ".el")))
+                (while sufs
+                  (let ((file (concat stem (car sufs))))
+                    (if (file-exists-p file)
+                        (throw 'tag file)))
+                  (setq sufs (cdr sufs))))
+              (setq paths (cdr paths))))))))
+
+(defun pases:modules-installed-p (modules)
+  (let ((modules-list (pases:mk-list modules)))
+  (catch 'done
+    (mapc (lambda (m)
+            (if (not (pases:module-installed-p m))
+                (throw 'done nil)))
+          modules-list)
+    (throw 'done t))))
+
 ;; pases:op
 (luna-define-class pases:op nil (func name))
 (luna-define-internal-accessors 'pases:op)
@@ -94,7 +126,11 @@
 ;;  (pases:source-file-set-compile-internal file t))
 
 ;; pases:elisp-source
-(luna-define-class pases:elisp-source (pases:source-file))
+(luna-define-class pases:elisp-source
+                   (pases:source-file)
+		   (depends))
+
+(luna-define-internal-accessors 'pases:elisp-source)
 
 (luna-define-method pases:load ((file pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent)))
@@ -107,8 +143,11 @@
 
 (luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
+        (depends (pases:elisp-source-depends-internal f))
         (targetdir))
-    (if (pases:source-file-compile-internal f)
+    (if (and (pases:source-file-compile-internal f)
+             (or (not depends)
+                 (pases:modules-installed-p depends)))
         (progn
           (let ((path (expand-file-name
                        (concat (pases:component-name-internal f) ".el")
@@ -220,7 +259,7 @@
   (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
-	(pases:system-depends-internal s)))
+	(pases:mk-list (pases:system-depends-internal s))))
 
 (defmacro pases:defsystem (name &rest args)
   `(progn
