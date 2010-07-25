@@ -103,60 +103,60 @@
     (throw 'done t))))
 
 ;; pases:op
-(luna-define-class pases:op nil (func name))
-(luna-define-internal-accessors 'pases:op)
-(luna-define-generic pases:operate (op component &optional parent)) 
-(luna-define-method pases:operate ((op pases:op) component &optional parent)
+(pases:luna-define-class pases:op nil (func name))
+(pases:luna-define-internal-accessors 'pases:op)
+(pases:luna-define-generic pases:operate (op component &optional parent)) 
+(pases:luna-define-method pases:operate ((op pases:op) component &optional parent)
   (let ((dep-op (cdr (assoc (pases:op-name-internal op) (pases:component-dep-op-internal component)))))
     (if dep-op
         (funcall 'pases:operate (symbol-value dep-op) component parent))
     (funcall (pases:op-func-internal op) component parent)))
 
-(setq pases:load-op (luna-make-entity 'pases:op
+(setq pases:load-op (pases:luna-make-entity 'pases:op
                                       :func 'pases:load
                                       :name 'pases:load-op))
-(setq pases:unload-op (luna-make-entity 'pases:op
+(setq pases:unload-op (pases:luna-make-entity 'pases:op
                                         :func 'pases:unload 
                                         :name 'pases:unload-op))
-(setq pases:compile-op (luna-make-entity 'pases:op :func 'pases:compile :name 'pases:compile-op))
+(setq pases:compile-op (pases:luna-make-entity 'pases:op :func 'pases:compile :name 'pases:compile-op))
   
 ;; pases:component
-(luna-define-class pases:component nil 
+(pases:luna-define-class pases:component nil 
 		   (name version dependencies pathname dep-op loaded))
 
-(luna-define-internal-accessors 'pases:component)
+(pases:luna-define-internal-accessors 'pases:component)
 
-(luna-define-generic pases:load (component &optional parent))
-(luna-define-generic pases:unload (component &optional parent))
-(luna-define-generic pases:compile (component &optional parent))
-(luna-define-generic pases:operate (component operation &optional args))
+(pases:luna-define-generic pases:load (component &optional parent))
+(pases:luna-define-generic pases:unload (component &optional parent))
+(pases:luna-define-generic pases:compile (component &optional parent))
+(pases:luna-define-generic pases:operate (component operation &optional args))
 
 ;; pases:source-file
-(luna-define-class pases:source-file (pases:component)
+(pases:luna-define-class pases:source-file (pases:component)
 		   (load compile compile-thunk optional))
 
-(luna-define-internal-accessors 'pases:source-file)
+(pases:luna-define-internal-accessors 'pases:source-file)
 
-(luna-define-method pases:load ((c pases:component) &rest args)
+(pases:luna-define-method pases:load ((c pases:component) &rest args)
   (pases:component-set-loaded-internal c t))
 
-(luna-define-method pases:unload ((c pases:component) &rest args)
+(pases:luna-define-method pases:unload ((c pases:component) &rest args)
   (pases:component-set-loaded-internal c nil))
 
-;;(luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
+;;(pases:luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
 ;;  (pases:component-set-dep-op-internal file
 ;;                                       '((pases:load-op . pases:compile-op)))
 ;;  (pases:source-file-set-compile-internal file t))
 
 ;; pases:elisp-source
-(luna-define-class pases:elisp-source
+(pases:luna-define-class pases:elisp-source
                    (pases:source-file)
 		   (compile-after
                     only-if))
 
-(luna-define-internal-accessors 'pases:elisp-source)
+(pases:luna-define-internal-accessors 'pases:elisp-source)
 
-(luna-define-method pases:load :before ((file pases:elisp-source) &optional parent)
+(pases:luna-define-method pases:load :before ((file pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent)))
     (pases:debug-message "[pases] loading %s from %s." (pases:component-name-internal c) basedir)
     (if (pases:source-file-load-internal file)
@@ -165,12 +165,12 @@
           (load (expand-file-name (pases:component-name-internal file)
                                   basedir))))))
 
-(luna-define-method pases:unload :before ((file pases:elisp-source) &optional parent)
+(pases:luna-define-method pases:unload :before ((file pases:elisp-source) &optional parent)
   (let ((module (pases:mk-symbol (pases:component-name-internal file))))
     (if (featurep module)
         (unload-feature module))))
 
-(luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
+(pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
         (compile-after (pases:elisp-source-compile-after-internal f))
         (only-if (pases:elisp-source-only-if-internal f))
@@ -197,7 +197,7 @@
                 (message "Error compiling %s " (pases:component-name-internal f)))))))))
 
 (defmacro pases:deffile (name &rest args)
-  `(luna-make-entity 'pases:elisp-source
+  `(pases:luna-make-entity 'pases:elisp-source
                      :name ,name
                      ,@args
                      ,@(if (not (plist-member args :compile))
@@ -212,10 +212,10 @@
                                ,(plist-get args :only-if))))))
 
 ;; pases:texi-file
-;; (luna-define-class pases:texi-source (pases:source-file))
-;; (luna-define-internal-accessors 'pases:texi-source)
+;; (pases:luna-define-class pases:texi-source (pases:source-file))
+;; (pases:luna-define-internal-accessors 'pases:texi-source)
 
-;; (luna-define-method pases:compile ((texi-file pases:texi-source) &optional parent)
+;; (pases:luna-define-method pases:compile ((texi-file pases:texi-source) &optional parent)
 ;;   (let* ((basedir (pases:component-pathname-internal parent))
 ;;          (texi-file-name (expand-file-name
 ;;                           (pases:component-name-internal texi-file) basedir))
@@ -230,15 +230,15 @@
 ;;           (write-file info-file-name)))))
 
 ;; (defmacro pases:def-texi-file (name &rest args)
-;;   `(luna-make-entity 'pases:texi-source
+;;   `(pases:luna-make-entity 'pases:texi-source
 ;; 		     :name ,name
 ;; 		     ,@args))
 
 ;; pases:info-dir
-(luna-define-class pases:info-dir (pases:component))
-(luna-define-internal-accessors 'pases:info-dir)
+(pases:luna-define-class pases:info-dir (pases:component))
+(pases:luna-define-internal-accessors 'pases:info-dir)
 
-(luna-define-method pases:load :before ((info-dir pases:info-dir) &optional parent)
+(pases:luna-define-method pases:load :before ((info-dir pases:info-dir) &optional parent)
   (let* ((basedir (pases:component-pathname-internal parent))
          (dir-name (expand-file-name (pases:component-name-internal info-dir)
                                      basedir)))
@@ -249,22 +249,22 @@
          (add-to-list 'Info-directory-list ,dir-name)))))
 
 (defmacro pases:def-info-dir (name &rest args)
-  `(luna-make-entity 'pases:info-dir
+  `(pases:luna-make-entity 'pases:info-dir
 		     :name ,name
 		     ,@args))
  
 ;; pases:source-dir
-(luna-define-class pases:source-dir (pases:component))
+(pases:luna-define-class pases:source-dir (pases:component))
 
-(luna-define-internal-accessors 'pases:source-dir)
+(pases:luna-define-internal-accessors 'pases:source-dir)
 
-(luna-define-method pases:load :before ((dir pases:source-dir) &optional parent)
+(pases:luna-define-method pases:load :before ((dir pases:source-dir) &optional parent)
   (let* ((basedir (pases:component-pathname-internal parent))
          (fullpath (expand-file-name (pases:component-name-internal dir) basedir)))
     (pases:debug-message "[pases] loading dir: %s." fullpath)
     (add-to-list 'load-path fullpath)))
 
-(luna-define-method pases:unload ((dir pases:source-dir) &optional parent)
+(pases:luna-define-method pases:unload ((dir pases:source-dir) &optional parent)
   (let* ((basedir (pases:component-pathname-internal parent))
          (fullpath (expand-file-name (pases:component-name-internal dir) basedir))
          (mem (member fullpath load-path)))
@@ -272,40 +272,40 @@
         (setq load-path (delq (car mem) load-path)))))
 
 (defmacro pases:defdir (name &rest args)
-  `(luna-make-entity 'pases:source-dir
+  `(pases:luna-make-entity 'pases:source-dir
 		     :name ,name
 		     ,@args))
 
 ;; pases:module
-(luna-define-class pases:module (pases:component) 
+(pases:luna-define-class pases:module (pases:component) 
 		   (components
 		    default-component-class
 		    if-component-dep-fails
 		    serial))
 
-(luna-define-internal-accessors 'pases:module)
+(pases:luna-define-internal-accessors 'pases:module)
 
-(luna-define-method pases:load :before ((m pases:module) &optional parent)
+(pases:luna-define-method pases:load :before ((m pases:module) &optional parent)
   (pases:debug-message "[pases] loading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:load-op c m))
           (pases:module-components-internal m)))
 
-(luna-define-method pases:unload :before ((m pases:module) &optional parent)
+(pases:luna-define-method pases:unload :before ((m pases:module) &optional parent)
   (pases:debug-message "[pases] unloading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:unload-op c m))
-          (pases:module-components-internal m)))
+        (reverse (pases:module-components-internal m))))
 
 ;; pases:system
-(luna-define-class pases:system (pases:module)
+(pases:luna-define-class pases:system (pases:module)
 		   (load-after version))
 
-(luna-define-internal-accessors 'pases:system)
+(pases:luna-define-internal-accessors 'pases:system)
 
-(luna-define-method pases:load :before ((s pases:system) &optional basedir)
+(pases:luna-define-method pases:load :before ((s pases:system) &optional basedir)
   (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
@@ -315,7 +315,7 @@
   `(progn
      (add-to-list 'pases:systems (quote ,name))
      (put (quote ,name) 'pases:system
-	  (luna-make-entity 'pases:system
+	  (pases:luna-make-entity 'pases:system
 			  :name (symbol-name (quote ,name))
 			  :pathname (file-name-directory (file-truename load-file-name))
 			  ,@args))))
@@ -332,7 +332,7 @@
 (defvar pases:systems '())
 
 (put 'emacs 'pases:system
-     (luna-make-entity 
+     (pases:luna-make-entity 
       'pases:system
       :name "emacs"
       :version emacs-version))
