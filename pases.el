@@ -325,6 +325,10 @@
 
 (defun pases:read-sysdef (file)
   (load-file file))
+
+(defun pases:undef-system (name)
+  (put name 'pases:system nil)
+  (setq pases:system (delq name pases:systems)))
    
 (defun pases:oos (op sys)
   (let ((system-real (get sys 'pases:system)))
