@@ -118,7 +118,9 @@
 (setq pases:unload-op (pases:luna-make-entity 'pases:op
                                         :func 'pases:unload 
                                         :name 'pases:unload-op))
-(setq pases:compile-op (pases:luna-make-entity 'pases:op :func 'pases:compile :name 'pases:compile-op))
+(setq pases:compile-op (pases:luna-make-entity 'pases:op
+                                               :func 'pases:compile
+                                               :name 'pases:compile-op))
   
 ;; pases:component
 (pases:luna-define-class pases:component nil 
@@ -250,7 +252,6 @@
   (let* ((basedir (pases:component-pathname-internal parent))
          (dir-name (expand-file-name (pases:component-name-internal info-dir)
                                      basedir)))
-    (message "%s" dir-name)
     (eval-after-load "info"
       `(progn
          (info-initialize)
