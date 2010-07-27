@@ -46,13 +46,11 @@
          (getenv "HOST")))
   "The name of the host that Emacs is running on.")
 
-(defvar pases:debug t)
+(defvar pases:debug nil)
 
-(defun pases:byte-recompile-file (file compile-thunk)
+(defun pases:byte-recompile-file (file)
   (if (file-newer-than-file-p file (concat file "c"))
-      (progn
-	(if compile-thunk (funcall compile-thunk))
-	(byte-compile-file file))
+      (byte-compile-file file)
     t))
 
 (defsubst pases:debug-message (&rest args)
@@ -107,10 +105,17 @@
 (pases:luna-define-internal-accessors 'pases:op)
 (pases:luna-define-generic pases:operate (op component &optional parent)) 
 (pases:luna-define-method pases:operate ((op pases:op) component &optional parent)
-  (let ((dep-op (cdr (assoc (pases:op-name-internal op) (pases:component-dep-op-internal component)))))
+  (let* ((dep-op (cdr (assoc (pases:op-name-internal op) (pases:component-dep-op-internal component))))
+	 (short-op-name (substring (symbol-name (pases:op-func-internal op)) 6))
+	 (after-hook-name (intern (concat "pases:component-after-" short-op-name "-hook-internal")))
+	 (before-hook-name (intern (concat "pases:component-before-" short-op-name "-hook-internal")))
+	 (before-hook (eval (macroexpand `(,before-hook-name component))))
+	 (after-hook (eval (macroexpand `(,after-hook-name component)))))
     (if dep-op
         (funcall 'pases:operate (symbol-value dep-op) component parent))
-    (funcall (pases:op-func-internal op) component parent)))
+    (if before-hook (funcall before-hook))
+    (funcall (pases:op-func-internal op) component parent)
+    (if after-hook (funcall after-hook))))
 
 (setq pases:load-op (pases:luna-make-entity 'pases:op
                                       :func 'pases:load
@@ -125,7 +130,9 @@
 ;; pases:component
 (pases:luna-define-class pases:component nil 
 		   (name version dependencies pathname dep-op loaded
-                         after-load-eval after-unload-eval))
+                         before-compile-hook after-compile-hook
+                         before-load-hook after-load-hook
+                         before-unload-hook after-unload-hook))
 
 (pases:luna-define-internal-accessors 'pases:component)
 
@@ -136,19 +143,15 @@
 
 ;; pases:source-file
 (pases:luna-define-class pases:source-file (pases:component)
-		   (load compile compile-thunk optional))
+		   (load compile optional))
 
 (pases:luna-define-internal-accessors 'pases:source-file)
 
 (pases:luna-define-method pases:load ((c pases:component) &rest args)
-  (pases:component-set-loaded-internal c t)
-  (if (pases:component-after-load-eval-internal c)
-      (funcall (pases:component-after-load-eval-internal c))))
+  (pases:component-set-loaded-internal c t))
 
 (pases:luna-define-method pases:unload ((c pases:component) &rest args)
-  (pases:component-set-loaded-internal c nil)
-  (if (pases:component-after-unload-eval-internal c)
-      (funcall (pases:component-after-unload-eval-internal c))))
+  (pases:component-set-loaded-internal c nil))
 
 ;;(pases:luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
 ;;  (pases:component-set-dep-op-internal file
@@ -195,7 +198,7 @@
                        (concat (pases:component-name-internal f) ".el")
                        basedir)))
             (pases:debug-message "[pases] maybe compiling %s." path)
-            (if (pases:byte-recompile-file path (pases:source-file-compile-thunk-internal f))
+            (if (pases:byte-recompile-file path)
                 (if targetdir
                     (let ((target-path
                            (expand-file-name 
@@ -326,15 +329,7 @@
 	  (pases:luna-make-entity 'pases:system
 			  :name (symbol-name (quote ,name))
 			  :pathname (file-name-directory (file-truename load-file-name))
-			  ,@args
-                          ,@(if (plist-member args :after-load-eval)
-                                `(:after-load-eval
-                                  (lambda ()
-                                    ,(plist-get args :after-load-eval))))
-                          ,@(if (plist-member args :after-unload-eval)
-                                `(:after-unload-eval
-                                  (lambda ()
-                                    ,(plist-get args :after-unload-eval))))))
+			  ,@args))
      (add-to-list 'pases:systems (quote ,name))))
 
 (defun pases:read-sysdef (file)
