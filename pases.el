@@ -46,16 +46,16 @@
          (getenv "HOST")))
   "The name of the host that Emacs is running on.")
 
-(defvar pases:debug nil)
+(defvar pases:debug t)
 
 (defun pases:byte-recompile-file (file)
   (if (file-newer-than-file-p file (concat file "c"))
       (byte-compile-file file)
     t))
 
-(defsubst pases:debug-message (&rest args)
+(defsubst pases:debug-message (str &rest args)
   (if pases:debug
-      (apply 'message args)))
+      (apply 'message (concat "[pases] " str) args)))
 
 (defsubst pases:mk-symbol (s)
   (if (stringp s) (intern s) s))
@@ -101,31 +101,42 @@
     (throw 'done t))))
 
 ;; pases:op
-(pases:luna-define-class pases:op nil (func name))
+(pases:luna-define-class pases:op nil (func name needed-func))
 (pases:luna-define-internal-accessors 'pases:op)
 (pases:luna-define-generic pases:operate (op component &optional parent)) 
 (pases:luna-define-method pases:operate ((op pases:op) component &optional parent)
   (let* ((dep-op (cdr (assoc (pases:op-name-internal op) (pases:component-dep-op-internal component))))
-         (pases:current-component component)
 	 (short-op-name (substring (symbol-name (pases:op-func-internal op)) 6))
+         (needed-func (pases:op-needed-func-internal op))
+         (pases:current-component component)
 	 (after-hook-name (intern (concat "pases:component-after-" short-op-name "-hook-internal")))
 	 (before-hook-name (intern (concat "pases:component-before-" short-op-name "-hook-internal")))
 	 (before-hook (eval (macroexpand `(,before-hook-name component))))
 	 (after-hook (eval (macroexpand `(,after-hook-name component)))))
     (if dep-op
         (funcall 'pases:operate (symbol-value dep-op) component parent))
-    (if before-hook (funcall before-hook))
-    (funcall (pases:op-func-internal op) component parent)
-    (if after-hook (funcall after-hook))))
+    ;; Check if this operation is needed.
+    (if (or (not needed-func)
+            (funcall needed-func component))
+        (progn
+          (if before-hook (funcall before-hook))
+          (funcall (pases:op-func-internal op) component parent)
+          (if after-hook (funcall after-hook)))
+      (pases:debug-message "%s on %s not needed." op component))))
 
 (setq pases:load-op (pases:luna-make-entity 'pases:op
                                       :func 'pases:load
+                                      :needed-func 'pases:load-needed
                                       :name 'pases:load-op))
+
 (setq pases:unload-op (pases:luna-make-entity 'pases:op
                                         :func 'pases:unload 
+                                        :needed-func 'pases:unload-needed
                                         :name 'pases:unload-op))
+
 (setq pases:compile-op (pases:luna-make-entity 'pases:op
                                                :func 'pases:compile
+                                               :needed-func 'pases:compile-needed
                                                :name 'pases:compile-op))
   
 ;; pases:component
@@ -138,9 +149,11 @@
 (pases:luna-define-internal-accessors 'pases:component)
 
 (pases:luna-define-generic pases:load (component &optional parent))
+(pases:luna-define-generic pases:load-needed (component &optional parent))
 (pases:luna-define-generic pases:unload (component &optional parent))
+(pases:luna-define-generic pases:unload-needed (component &optional parent))
 (pases:luna-define-generic pases:compile (component &optional parent))
-(pases:luna-define-generic pases:operate (component operation &optional args))
+(pases:luna-define-generic pases:compile-needed (component &optional parent))
 
 ;; pases:source-file
 (pases:luna-define-class pases:source-file (pases:component)
@@ -148,8 +161,16 @@
 
 (pases:luna-define-internal-accessors 'pases:source-file)
 
+;; We only need to load if it is not loaded already.
+(pases:luna-define-method pases:load-needed ((c pases:component) &rest args)
+  (not (pases:component-loaded-internal c)))
+
 (pases:luna-define-method pases:load ((c pases:component) &rest args)
   (pases:component-set-loaded-internal c t))
+
+;; We only need to unload if it is loaded.
+(pases:luna-define-method pases:unload-needed ((c pases:component) &rest args)
+  (pases:component-loaded-internal c))
 
 (pases:luna-define-method pases:unload ((c pases:component) &rest args)
   (pases:component-set-loaded-internal c nil))
@@ -169,7 +190,7 @@
 
 (pases:luna-define-method pases:load :before ((file pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent)))
-    (pases:debug-message "[pases] loading %s from %s." (pases:component-name-internal c) basedir)
+    (pases:debug-message "loading %s from %s." (pases:component-name-internal c) basedir)
     (if (pases:source-file-load-internal file)
         (if (pases:component-pathname-internal file)
             (load (pases:component-pathname-internal file))
@@ -184,31 +205,32 @@
           (error
            (message "[pases] Caught error unloading %s: %s." module (cdr err)))))))
 
+(pases:luna-define-method pases:compile-needed ((f pases:elisp-source) &optional parent)
+  (let ((compile-after (pases:elisp-source-compile-after-internal f))
+        (only-if (pases:elisp-source-only-if-internal f)))
+    (and (pases:source-file-compile-internal f)
+         (or (not compile-after)
+             (pases:modules-installed-p compile-after))
+         (or (not only-if)
+             (funcall only-if)))))
+  
 (pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
-        (compile-after (pases:elisp-source-compile-after-internal f))
-        (only-if (pases:elisp-source-only-if-internal f))
         (targetdir))
-    (if (and (pases:source-file-compile-internal f)
-             (or (not compile-after)
-                 (pases:modules-installed-p compile-after))
-             (or (not only-if)
-                 (funcall only-if)))
-        (progn
-          (let ((path (expand-file-name
-                       (concat (pases:component-name-internal f) ".el")
-                       basedir)))
-            (pases:debug-message "[pases] maybe compiling %s." path)
-            (if (pases:byte-recompile-file path)
-                (if targetdir
-                    (let ((target-path
-                           (expand-file-name 
-                            (concat (pases:component-name-internal f) ".elc")
-                            targetdir)))
-                      (rename-file (concat path "c") target-path)))
-              (if (not (pases:source-file-optional-internal f))
-                  (error "Error compiling %s " (pases:component-name-internal f))
-                (message "Error compiling %s " (pases:component-name-internal f)))))))))
+    (let ((path (expand-file-name
+                 (concat (pases:component-name-internal f) ".el")
+                 basedir)))
+      (pases:debug-message "maybe compiling %s." path)
+      (if (pases:byte-recompile-file path)
+          (if targetdir
+              (let ((target-path
+                     (expand-file-name 
+                      (concat (pases:component-name-internal f) ".elc")
+                      targetdir)))
+                (rename-file (concat path "c") target-path)))
+        (if (not (pases:source-file-optional-internal f))
+            (error "Error compiling %s " (pases:component-name-internal f))
+          (message "Error compiling %s " (pases:component-name-internal f)))))))
 
 (defmacro pases:deffile (name &rest args)
   `(pases:luna-make-entity 'pases:elisp-source
@@ -274,7 +296,7 @@
 (pases:luna-define-method pases:load :before ((dir pases:source-dir) &optional parent)
   (let* ((basedir (pases:component-pathname-internal parent))
          (fullpath (expand-file-name (pases:component-name-internal dir) basedir)))
-    (pases:debug-message "[pases] loading dir: %s." fullpath)
+    (pases:debug-message "loading dir: %s." fullpath)
     (add-to-list 'load-path fullpath)))
 
 (pases:luna-define-method pases:unload ((dir pases:source-dir) &optional parent)
@@ -299,14 +321,14 @@
 (pases:luna-define-internal-accessors 'pases:module)
 
 (pases:luna-define-method pases:load :before ((m pases:module) &optional parent)
-  (pases:debug-message "[pases] loading module components from %s."
+  (pases:debug-message "loading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:load-op c m))
           (pases:module-components-internal m)))
 
 (pases:luna-define-method pases:unload :before ((m pases:module) &optional parent)
-  (pases:debug-message "[pases] unloading module components from %s."
+  (pases:debug-message "unloading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:unload-op c m))
@@ -338,7 +360,7 @@
 
 (defun pases:undef-system (name)
   (put name 'pases:system nil)
-  (setq pases:system (delq name pases:systems)))
+  (setq pases:systems (delq name pases:systems)))
    
 (defun pases:system-defined? (name)
   (not (not (get name 'pases:system))))
