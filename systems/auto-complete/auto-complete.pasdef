@@ -1,0 +1,33 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ auto-complete
+ :version "1.3"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "popup")
+       (pases:deffile "auto-complete")
+       (pases:deffile "auto-complete-config")
+       (pases:deffile "fuzzy"))
+ :after-load-hook (lambda ()
+                     (setq-default
+                      ac-sources
+                      '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+                     (autoload 'ac-emacs-lisp-mode-setup "auto-complete-config")
+                     (autoload 'ac-cc-mode-setup "auto-complete-config")
+                     (autoload 'ac-ruby-mode-setup "auto-complete-config")
+                     (autoload 'ac-css-mode-setup "auto-complete-config")
+                     (autoload 'ac-common-setup "auto-complete-config")
+                     (if (not (boundp 'ac-dictionary-directories))
+                         (setq ac-dictionary-directories nil))
+                     (add-to-list 'ac-dictionary-directories
+                                  (expand-file-name
+                                   "dict"
+                                   (pases:component-pathname-internal
+                                    pases:current-component))))
+ :after-unload-hook (lambda ()
+                      (fmakunbound 'ac-emacs-lisp-mode-setup)
+                      (fmakunbound 'ac-cc-mode-setup)
+                      (fmakunbound 'ac-ruby-mode-setup)
+                      (fmakunbound 'ac-css-mode-setup)
+                      (fmakunbound 'ac-ccommon-mode-setup)))
