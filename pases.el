@@ -106,6 +106,7 @@
 (pases:luna-define-generic pases:operate (op component &optional parent)) 
 (pases:luna-define-method pases:operate ((op pases:op) component &optional parent)
   (let* ((dep-op (cdr (assoc (pases:op-name-internal op) (pases:component-dep-op-internal component))))
+         (pases:current-component component)
 	 (short-op-name (substring (symbol-name (pases:op-func-internal op)) 6))
 	 (after-hook-name (intern (concat "pases:component-after-" short-op-name "-hook-internal")))
 	 (before-hook-name (intern (concat "pases:component-before-" short-op-name "-hook-internal")))
