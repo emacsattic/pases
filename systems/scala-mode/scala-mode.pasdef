@@ -1,0 +1,21 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ scala-mode
+ :version "2.8.0.final"
+ :components
+ (list (pases:defdir ".")
+       (pases:deffile "scala-mode-auto" :load t)
+       (pases:deffile "scala-mode-constants")
+       (pases:deffile "scala-mode")
+       (pases:deffile "scala-mode-feature")
+       (pases:deffile "scala-mode-feature-electric")
+       (pases:deffile "scala-mode-feature-speedbar")
+       (pases:deffile "scala-mode-feature-tags")
+       (pases:deffile "scala-mode-fontlock")
+       (pases:deffile "scala-mode-indent")
+       (pases:deffile "scala-mode-inf")
+       (pases:deffile "scala-mode-lib")
+       (pases:deffile "scala-mode-navigation")
+       (pases:deffile "scala-mode-ui")
+       (pases:deffile "scala-mode-variables")))
