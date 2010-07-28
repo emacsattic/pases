@@ -2,16 +2,13 @@
 
 (pases:defsystem 
  ensime
- :load-after '(scala-mode)
+ :load-after '(scala-mode auto-complete)
  :version "20100726"
  :components
  (list (pases:defdir "./elisp")
        (pases:deffile "./elisp/ensime-auto-complete")
-       (pases:deffile "./elisp/popup")
-       (pases:deffile "./elisp/fuzzy")
        (pases:deffile "./elisp/ensime-test")
        (pases:deffile "./elisp/ensime-debug")
-       (pases:deffile "./elisp/auto-complete")
        (pases:deffile "./elisp/ensime-inf")
        (pases:deffile "./elisp/ensime-config")
        (pases:deffile "./elisp/ensime")

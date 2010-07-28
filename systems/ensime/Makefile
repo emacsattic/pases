@@ -6,7 +6,7 @@ PASDEF		= ensime.pasdef
 DESCRIPTION	= Package for $NAME ($VERSION).
 PASESFILE	= $(NAME)-$(VERSION).pases
 FILES		= \
-build/elisp/*.el \
+build/elisp/ensime*.el \
 build/LICENSE \
 build/README.md \
 build/bin/server.bat \
