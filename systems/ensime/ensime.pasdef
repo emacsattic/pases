@@ -1,0 +1,33 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ ensime
+ :load-after '(scala-mode)
+ :version "20100726"
+ :components
+ (list (pases:defdir "./elisp")
+       (pases:deffile "./elisp/ensime-auto-complete")
+       (pases:deffile "./elisp/popup")
+       (pases:deffile "./elisp/fuzzy")
+       (pases:deffile "./elisp/ensime-test")
+       (pases:deffile "./elisp/ensime-debug")
+       (pases:deffile "./elisp/auto-complete")
+       (pases:deffile "./elisp/ensime-inf")
+       (pases:deffile "./elisp/ensime-config")
+       (pases:deffile "./elisp/ensime")
+       (pases:deffile "./elisp/ensime-sbt"))
+ :after-load-hook (lambda ()
+                    (chmod (expand-file-name
+                            "bin/server.sh"
+                            (pases:component-pathname-internal
+                             pases:current-component))
+                           #o0755)
+                    (autoload 'ensime-scala-mode-hook "ensime"
+                      "Conveniance hook function that just starts ensime-mode.")
+                    (autoload 'ensime-mode "ensime"
+                      "ENSIME: The ENhanced Scala Interaction Mode for Emacs (minor-mode).")
+                    (add-hook 'scala-mode-hook 'ensime-scala-mode-hook))
+ :after-unload-hook (lambda ()
+                      (remove-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+                      (fmakunbound 'ensime-scala-mode-hook)
+                      (fmakunbound 'ensime-mode)))

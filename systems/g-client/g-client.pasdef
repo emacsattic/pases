@@ -11,7 +11,7 @@
        (pases:deffile "g-app")
        (pases:deffile "greader")
        (pases:deffile "gsheet")
-       (pases:deffile "gcal"  :compile-thunk (lambda () (load "g-load-path")))
+       (pases:deffile "gcal" :load-after "g-load-path")
        (pases:deffile "gnotebook")
        (pases:deffile "gblogger")
        (pases:deffile "g-cus-load")
