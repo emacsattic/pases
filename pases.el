@@ -185,11 +185,6 @@
 (pases:luna-define-internal-accessors 'pases:elisp-source)
 
 (pases:luna-define-method pases:load-needed ((file pases:elisp-source) &optional parent)
-  ;; Ensure that the dir is in the load-path. A little hacky.
-  (let* ((basedir (pases:component-pathname-internal parent))
-         (dir (file-name-directory
-               (expand-file-name (pases:component-name-internal file) basedir))))
-    (add-to-list 'load-path dir))
   (and (pases:source-file-load-internal file)
        (not (pases:component-loaded-internal file))))
 
@@ -222,6 +217,12 @@
        (message "[pases] Caught error unloading %s: %s." module (cdr err))))))
 
 (pases:luna-define-method pases:compile-needed ((f pases:elisp-source) &optional parent)
+  ;; Ensure that the dir is in the load-path. A little hacky.
+  (let* ((basedir (pases:component-pathname-internal parent))
+         (dir (file-name-directory
+               (expand-file-name (pases:component-name-internal f) basedir))))
+    (add-to-list 'load-path dir))
+
   (let ((compile-after (pases:elisp-source-compile-after-internal f))
         (only-if (pases:elisp-source-only-if-internal f)))
     (and (pases:source-file-compile-internal f)
