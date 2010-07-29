@@ -4,7 +4,7 @@
  pases
  :version "0.2"
  :components
- `(,(pases:defdir ".")
-   ,(pases:deffile "pases")
-   ,(pases:deffile "pases-package")
-   ,(pases:deffile "luna")))
+ (list
+  (pases:deffile "pases")
+  (pases:deffile "pases-package")
+  (pases:deffile "pases-luna")))
