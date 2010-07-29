@@ -2,50 +2,9 @@
 (pases:defsystem
  wl
  :version "1.14.6"
- :load-after 'semi
+ :after '(semi)
  :components
  (list
-  (pases:deffile "wl/wl"
-                 :generate-autoloads-to "wl-loaddefs")
-  (pases:deffile "wl/wl-folder")
-  (pases:deffile "wl/wl-summary")
-  (pases:deffile "wl/wl-action")
-  (pases:deffile "wl/wl-message")
-  (pases:deffile "wl/wl-vars")
-  (pases:deffile "wl/wl-draft"
-                 :generate-autoloads-to "wl-loaddefs")
-  (pases:deffile "wl/wl-util")
-  (pases:deffile "wl/wl-version")
-  (pases:deffile "wl/wl-address")
-  (pases:deffile "wl/wl-addrmgr"
-                 :generate-autoloads-to "wl-loaddefs")
-  (pases:deffile "wl/wl-highlight")
-  (pases:deffile "wl/wl-demo")
-  (pases:deffile "wl/wl-refile")
-  (pases:deffile "wl/wl-thread")
-  (pases:deffile "wl/wl-fldmgr")
-  (pases:deffile "wl/wl-expire")
-  (pases:deffile "wl/wl-template")
-  (pases:deffile "wl/wl-score")
-  (pases:deffile "wl/wl-acap")
-  (pases:deffile "wl/wl-news")
-  (pases:deffile "wl/wl-spam")
-  (pases:deffile "wl/wl-batch")
-  (pases:deffile "wl-dnd"
-                 :only-if (featurep 'xemacs))
-  (pases:deffile "wl-xmas"
-                 :only-if (featurep 'xemacs))
-  (pases:deffile "wl-e21"
-                 :only-if (and (not (featurep 'xemacs))
-                               (and (boundp 'emacs-major-version) 
-                                    (>= emacs-major-version 21))))
-  (pases:deffile "wl-mule"
-                 :only-if (and (not (featurep 'xemacs))
-                               (not (and (boundp 'emacs-major-version) 
-                                         (>= emacs-major-version 21)))
-                               (featurep 'mule)))
-  (pases:deffile "wl/wl-mime")
-
   (pases:deffile "elmo/utf7")
   (pases:deffile "elmo/pldap")
   (pases:deffile "elmo/acap")
@@ -95,11 +54,53 @@
                  :only-if (or (featurep 'xemacs)
                               (fboundp 'dynamic-link)
                               (fboundp 'open-database)))
-  (pases:deffile "elmo/elmo-shimbin"
+  (pases:deffile "elmo/elmo-shimbun"
                  :only-if (pases:module-installed-p 'shimbun))
   (pases:deffile "elmo/elsp-spamfilter"
                  :only-if (pases:module-installed-p 'spamfilter))
   (pases:deffile "elmo/elmo-mime")
+
+  (pases:deffile "wl/wl"
+                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "wl/wl-folder")
+  (pases:deffile "wl/wl-summary")
+  (pases:deffile "wl/wl-action")
+  (pases:deffile "wl/wl-message")
+  (pases:deffile "wl/wl-vars")
+  (pases:deffile "wl/wl-draft"
+                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "wl/wl-util")
+  (pases:deffile "wl/wl-version")
+  (pases:deffile "wl/wl-address")
+  (pases:deffile "wl/wl-addrmgr"
+                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "wl/wl-highlight")
+  (pases:deffile "wl/wl-demo")
+  (pases:deffile "wl/wl-refile")
+  (pases:deffile "wl/wl-thread")
+  (pases:deffile "wl/wl-fldmgr")
+  (pases:deffile "wl/wl-expire")
+  (pases:deffile "wl/wl-template")
+  (pases:deffile "wl/wl-score")
+  (pases:deffile "wl/wl-acap")
+  (pases:deffile "wl/wl-news")
+  (pases:deffile "wl/wl-spam")
+  (pases:deffile "wl/wl-batch")
+  (pases:deffile "wl/wl-dnd"
+                 :only-if (featurep 'xemacs))
+  (pases:deffile "wl/wl-xmas"
+                 :only-if (featurep 'xemacs))
+  (pases:deffile "wl/wl-e21"
+                 :only-if (and (not (featurep 'xemacs))
+                               (and (boundp 'emacs-major-version) 
+                                    (>= emacs-major-version 21))))
+  (pases:deffile "wl-mule"
+                 :only-if (and (not (featurep 'xemacs))
+                               (not (and (boundp 'emacs-major-version) 
+                                         (>= emacs-major-version 21)))
+                               (featurep 'mule)))
+  (pases:deffile "wl/wl-mime")
+
   (pases:deffile "utils/rfc2368")
   (pases:deffile "utils/im-wl"
                  :generate-autoloads-to "wl-loaddefs")
@@ -111,4 +112,4 @@
   (pases:deffile "utils/bbdb-wl"
                  :only-if (pases:module-installed-p 'bbdb)
                  :generate-autoloads-to "wl-loaddefs")
-  (pases:deffile "wl/wl-loaddefs")))
+  (pases:deffile "wl-loaddefs" :load t)))
