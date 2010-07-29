@@ -2,7 +2,7 @@
 (pases:defsystem
  flim
  :version "1.14.9"
- :load-after '(semi)
+ :after '(apel)
  :components
  (list
   (pases:deffile "std11")
@@ -45,13 +45,11 @@
                                (fboundp 'dynamic-link)))
   (pases:deffile "mel-b-el")
   (pases:deffile "mel-q-ccl"
-                 :only-if (progn
-                            (require 'pccl)
-                            (not (broken-p 'ccl-usable))))
+                 :only-if (and (require 'pccl)
+			       (not (broken-p 'ccl-usable))))
   (pases:deffile "mel-b-ccl"
-                 :only-if (progn
-                            (require 'pccl)
-                            (not (broken-p 'ccl-usable))))
+                 :only-if (and (require 'pccl)
+			       (not (broken-p 'ccl-usable))))
   (pases:deffile "md5-dl"
                  :only-if (and (not (fboundp 'md5))
                                (not (subrp (symbol-function 'md5)))
