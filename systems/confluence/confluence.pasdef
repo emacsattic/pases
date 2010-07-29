@@ -4,12 +4,7 @@
  confluence
  :version "1.2"
  :components
- (list (pases:defdir ".")
-       (pases:deffile "confluence")
-       (pases:deffile "xml-rpc"))
- :after-load-hook (lambda ()
-                    (autoload 'confluence-get-page "confluence" nil t)
-                    (autoload 'confluence-search "confluence" nil t))
- :after-unload-hook (lambda ()
-                      (fmakunbound 'confluence-get-page)
-                      (fmakunbound 'confluence-search)))
+ (list (pases:deffile "confluence" 
+                      :generate-autoloads-to "confluence-loaddefs")
+       (pases:deffile "xml-rpc")
+       (pases:deffile "confluence-loaddefs" :load t)))
