@@ -179,6 +179,7 @@
 (pases:luna-define-class pases:elisp-source
                    (pases:source-file)
 		   (compile-after
+                    generate-autoloads-to
                     only-if))
 
 (pases:luna-define-internal-accessors 'pases:elisp-source)
@@ -211,19 +212,25 @@
   
 (pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent))
+        (autoloads-to (pases:elisp-source-generate-autoloads-to-internal f))
         (targetdir))
     (let ((path (expand-file-name
                  (concat (pases:component-name-internal f) ".el")
                  basedir)))
       (pases:debug-message "maybe compiling %s." path)
       (if (pases:byte-recompile-file path)
-          (if targetdir
-              (let ((target-path
-                     (expand-file-name 
-                      (concat (pases:component-name-internal f) ".elc")
-                      targetdir)))
-                (rename-file (concat path "c") target-path)))
-        (if (not (pases:source-file-optional-internal f))
+          (progn
+            (if targetdir
+                (let ((target-path
+                       (expand-file-name 
+                        (concat (pases:component-name-internal f) ".elc")
+                        targetdir)))
+                  (rename-file (concat path "c") target-path)))
+            (if autoloads-to
+                (let ((generated-autoload-file
+                       (expand-file-name autoloads-to basedir)))
+                  (update-file-autoloads path t))))
+            (if (not (pases:source-file-optional-internal f))
             (error "Error compiling %s " (pases:component-name-internal f))
           (message "Error compiling %s " (pases:component-name-internal f)))))))
 
