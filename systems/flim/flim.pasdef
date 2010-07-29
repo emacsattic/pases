@@ -1,0 +1,66 @@
+;; -*- mode: emacs-lisp -*-
+(pases:defsystem
+ flim
+ :version "1.14.9"
+ :load-after '(semi)
+ :components
+ (list
+  (pases:deffile "std11")
+  (pases:deffile "luna")
+  (pases:deffile "lunit")
+  (pases:deffile "mime-def")
+  (pases:deffile "mel")
+  (pases:deffile "mel-q")
+  (pases:deffile "mel-u")
+  (pases:deffile "mel-g")
+  (pases:deffile "eword-decode")
+  (pases:deffile "eword-encode")
+  (pases:deffile "mime")
+  (pases:deffile "mime-parse")
+  (pases:deffile "mmgeneric")
+  (pases:deffile "mmbuffer")
+  (pases:deffile "mmcooked")
+  (pases:deffile "mmexternal")
+  (pases:deffile "mime-conf")
+  (pases:deffile "mailcap")
+  (pases:deffile "sasl")
+  (pases:deffile "sasl-cram")
+  (pases:deffile "sasl-digest")
+  (pases:deffile "md4")
+  (pases:deffile "ntlm")
+  (pases:deffile "sasl-ntlm")
+  (pases:deffile "sasl-scram")
+  (pases:deffile "smtp")
+  (pases:deffile "qmtp")
+  (pases:deffile "hex-util")
+  (pases:deffile "hmac-def")
+  (pases:deffile "md5")
+  (pases:deffile "sha1")
+  (pases:deffile "hmac-md5")
+  (pases:deffile "hmac-sha1")
+  (pases:deffile "smtpmail")
+  (pases:deffile "mel-b-dl"
+                 :only-if (and (not (fboundp 'base64-encode-string))
+                               (not (subrp (symbol-function 'base64-encode-string)))
+                               (fboundp 'dynamic-link)))
+  (pases:deffile "mel-b-el")
+  (pases:deffile "mel-q-ccl"
+                 :only-if (progn
+                            (require 'pccl)
+                            (not (broken-p 'ccl-usable))))
+  (pases:deffile "mel-b-ccl"
+                 :only-if (progn
+                            (require 'pccl)
+                            (not (broken-p 'ccl-usable))))
+  (pases:deffile "md5-dl"
+                 :only-if (and (not (fboundp 'md5))
+                               (not (subrp (symbol-function 'md5)))
+                               (fboundp 'dynamic-link)))
+  (pases:deffile "md5-el"
+                 :only-if (and (not (fboundp 'md5))
+                               (not (subrp (symbol-function 'md5)))
+                               (not (fboundp 'dynamic-link))))
+  (pases:deffile "sha1-dl"
+                 :only-if (fboundp 'dynamic-link))
+  (pases:deffile "sha1-el"
+                 :only-if (not (fboundp 'dynamic-link)))))
