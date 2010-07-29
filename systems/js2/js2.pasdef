@@ -4,8 +4,7 @@
  js2
  :version "20090723b"
  :components
- (list (pases:defdir ".")
-       (pases:deffile 
+ (list (pases:deffile 
         "js2" 
         :generate-autoloads-to "js2-loaddefs.el")
        (pases:deffile "js2-loaddefs" :load t)) 
