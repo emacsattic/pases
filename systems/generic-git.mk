@@ -11,6 +11,10 @@ clean:
 	rm $(PASESFILE)
 
 .update: build
+ifeq ($(TAG),)
 	cd build ; git pull
+else
+	cd build ; git pull ; git checkout $(TAG)
+endif
 
 $(FILES): .update
