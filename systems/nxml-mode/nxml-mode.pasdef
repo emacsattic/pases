@@ -4,8 +4,7 @@
  nxml-mode
  :version "20041004"
  :components
- (list (pases:defdir ".")
-       (pases:deffile "nxml-mode")
+ (list (pases:deffile "nxml-mode")
        (pases:deffile "nxml-rap")
        (pases:deffile "nxml-outln")
        (pases:deffile "nxml-mode")
