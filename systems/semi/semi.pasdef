@@ -1,0 +1,34 @@
+;; -*- mode: emacs-lisp -*-
+(pases:defsystem
+ semi
+ :version "1.14.6"
+ :load-after 'apel
+ :components
+ (list
+  (pases:deffile "signature")
+  (pases:deffile "pgg-def")
+  (pases:deffile "pgg")
+  (pases:deffile "pgg-parse")
+  (pases:deffile "pgg-gpg")
+  (pases:deffile "pgg-pgp5")
+  (pases:deffile "pgg-pgp")
+  (pases:deffile "mime-pgp")
+  (pases:deffile "smime")
+  (pases:deffile "semi-def")
+  (pases:deffile "mime-view")
+  (pases:deffile "mime-play")
+  (pases:deffile "mime-partial")
+  (pases:deffile "postpet")
+  (pases:deffile "mime-edit")
+  (pases:deffile "semi-setup")
+  (pases:deffile "mail-mime-setup")
+  (pases:deffile "mime-setup")
+  (pases:deffile "mime-bbdb"
+                 :compile-after '("bbdb"))
+  (pases:deffile "mime-w3"
+                 :compile-after '("w3"))
+  ;; obsoleted?
+  ;;,(pases:deffile "mime-mc")
+  (pases:deffile "mime-image"
+                 :only-if (or (string-match "XEmacs" emacs-version)
+                              (featurep 'mule)))))
