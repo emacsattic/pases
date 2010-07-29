@@ -232,9 +232,13 @@
              (funcall only-if)))))
   
 (pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
-  (let ((basedir (pases:component-pathname-internal parent))
-        (autoloads-to (pases:elisp-source-generate-autoloads-to-internal f))
-        (targetdir))
+  (let* ((basedir (pases:component-pathname-internal parent))
+	 (autoloads-to-raw (pases:elisp-source-generate-autoloads-to-internal f))
+	 (autoloads-to (and autoloads-to-raw
+			    (if (string= (substring autoloads-to-raw -3) ".el")
+				autoloads-to-raw
+			      (concat autoloads-to-raw ".el"))))
+	 (targetdir))
     (let ((path (expand-file-name
                  (concat (pases:component-name-internal f) ".el")
                  basedir)))
@@ -252,24 +256,40 @@
                        (expand-file-name autoloads-to basedir)))
                   (update-file-autoloads path t)
                   (kill-buffer (find-buffer-visiting generated-autoload-file)))))
-            (if (not (pases:source-file-optional-internal f))
+	(if (not (pases:source-file-optional-internal f))
             (error "Error compiling %s " (pases:component-name-internal f))
           (message "Error compiling %s " (pases:component-name-internal f)))))))
 
+(defun pases:get-system (name)
+  (get name 'pases:system))
+
+(defun pases:put-system (name component)
+  (put name 'pases:system component))
+
+(defun pases:put-elisp (name component)
+  (put name 'pases:elisp-source component))
+
+(defun pases:get-elisp (name)
+  (get name 'pases:elisp-source))
+
 (defmacro pases:deffile (name &rest args)
-  `(pases:luna-make-entity 'pases:elisp-source
-                     :name ,name
-                     ,@args
-                     ,@(if (not (plist-member args :compile))
-                           '(:compile t))
-                     ,@(if (not (plist-member args :optional))
-                           '(:optional nil))
-                     ,@(if (not (plist-member args :dep-op))
-                           '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
-                     ,@(if (plist-member args :only-if)
-                           `(:only-if
-                             (lambda ()
-                               ,(plist-get args :only-if))))))
+  `(progn
+     (pases:put-elisp (intern ,name)
+                      (pases:luna-make-entity
+                       'pases:elisp-source
+                       :name ,name
+                       ,@(plist-put (copy-list args) :only-if nil)
+                       ,@(if (not (plist-member args :compile))
+                             '(:compile t))
+                       ,@(if (not (plist-member args :optional))
+                             '(:optional nil))
+                       ,@(if (not (plist-member args :dep-op))
+                             '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
+                       ,@(if (plist-member args :only-if)
+                             `(:only-if
+                               (lambda ()
+                                 ,(plist-get args :only-if))))))
+     (pases:get-elisp (intern ,name))))
 
 ;; pases:texi-file
 ;; (pases:luna-define-class pases:texi-source (pases:source-file))
@@ -337,7 +357,7 @@
 
 ;; pases:system
 (pases:luna-define-class pases:system (pases:module)
-		   (load-after version))
+		   (after version))
 
 (pases:luna-define-internal-accessors 'pases:system)
 
@@ -345,40 +365,47 @@
   (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
-	(pases:mk-list (pases:system-load-after-internal s))))
+	(pases:mk-list (pases:system-after-internal s))))
+
+(pases:luna-define-method pases:compile :before ((s pases:system) &optional basedir)
+  (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
+  (mapc (lambda (s)
+	  (pases:oos pases:compile-op s))
+	(pases:mk-list (pases:system-after-internal s))))
 
 (defmacro pases:defsystem (name &rest args)
   `(progn
-     (put (quote ,name) 'pases:system
-	  (pases:luna-make-entity 'pases:system
-			  :name (symbol-name (quote ,name))
-			  :pathname (file-name-directory (file-truename load-file-name))
-			  ,@args))
+     (pases:put-system (quote ,name)
+                       (pases:luna-make-entity
+                        'pases:system
+                        :name (symbol-name (quote ,name))
+                        :pathname (file-name-directory (file-truename load-file-name))
+                        ,@args))
      (add-to-list 'pases:systems (quote ,name))))
 
 (defun pases:read-sysdef (file)
   (load-file file))
 
 (defun pases:undef-system (name)
-  (put name 'pases:system nil)
+  (pases:put-system name nil)
   (setq pases:systems (delq name pases:systems)))
    
 (defun pases:system-defined? (name)
-  (not (not (get name 'pases:system))))
-
+  (not (not (pases:get-system name))))
+       
 (defun pases:oos (op sys)
-  (let ((system-real (get sys 'pases:system)))
+  (let ((system-real (pases:get-system sys)))
     (if (not system-real)
         (error "[pases] System %s is not defined." sys) 
       (funcall 'pases:operate op system-real))))
 
 (defvar pases:systems '())
 
-(put 'emacs 'pases:system
-     (pases:luna-make-entity 
-      'pases:system
-      :name "emacs"
-      :version emacs-version))
+(pases:put-system 'emacs 
+                  (pases:luna-make-entity 
+                   'pases:system
+                   :name "emacs"
+                   :version emacs-version))
 
  (defun pases:load-all ()
   (mapc (lambda (s)
