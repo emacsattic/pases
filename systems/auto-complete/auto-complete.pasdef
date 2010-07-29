@@ -4,8 +4,7 @@
  auto-complete
  :version "1.3"
  :components
- (list (pases:defdir ".")
-       (pases:deffile "popup")
+ (list (pases:deffile "popup")
        (pases:deffile "auto-complete")
        (pases:deffile "auto-complete-config")
        (pases:deffile "fuzzy"))

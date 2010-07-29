@@ -4,8 +4,7 @@
  scala-mode
  :version "2.8.0.final"
  :components
- (list (pases:defdir ".")
-       (pases:deffile "scala-mode-auto" :load t)
+ (list (pases:deffile "scala-mode-auto" :load t)
        (pases:deffile "scala-mode-constants")
        (pases:deffile "scala-mode")
        (pases:deffile "scala-mode-feature")

@@ -4,5 +4,4 @@
  snippet
  :version "0.2"
  :components
- `(,(pases:defdir ".")
-   ,(pases:deffile "snippet")))
+ (list (pases:deffile "snippet")))
