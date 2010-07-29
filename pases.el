@@ -155,12 +155,6 @@
 (pases:luna-define-generic pases:compile (component &optional parent))
 (pases:luna-define-generic pases:compile-needed (component &optional parent))
 
-;; pases:source-file
-(pases:luna-define-class pases:source-file (pases:component)
-		   (load compile optional))
-
-(pases:luna-define-internal-accessors 'pases:source-file)
-
 ;; We only need to load if it is not loaded already.
 (pases:luna-define-method pases:load-needed ((c pases:component) &rest args)
   (not (pases:component-loaded-internal c)))
@@ -175,10 +169,11 @@
 (pases:luna-define-method pases:unload ((c pases:component) &rest args)
   (pases:component-set-loaded-internal c nil))
 
-;;(pases:luna-define-method initialize-instance :before ((file pases:source-file) &rest args)
-;;  (pases:component-set-dep-op-internal file
-;;                                       '((pases:load-op . pases:compile-op)))
-;;  (pases:source-file-set-compile-internal file t))
+;; pases:source-file
+(pases:luna-define-class pases:source-file (pases:component)
+		   (load compile optional))
+
+(pases:luna-define-internal-accessors 'pases:source-file)
 
 ;; pases:elisp-source
 (pases:luna-define-class pases:elisp-source
