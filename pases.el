@@ -117,7 +117,7 @@
         (funcall 'pases:operate (symbol-value dep-op) component parent))
     ;; Check if this operation is needed.
     (if (or (not needed-func)
-            (funcall needed-func component))
+            (funcall needed-func component parent))
         (progn
           (if before-hook (funcall before-hook))
           (funcall (pases:op-func-internal op) component parent)
@@ -184,22 +184,42 @@
 
 (pases:luna-define-internal-accessors 'pases:elisp-source)
 
+(pases:luna-define-method pases:load-needed ((file pases:elisp-source) &optional parent)
+  ;; Ensure that the dir is in the load-path. A little hacky.
+  (let* ((basedir (pases:component-pathname-internal parent))
+         (dir (file-name-directory
+               (expand-file-name (pases:component-name-internal file) basedir))))
+    (add-to-list 'load-path dir))
+  (and (pases:source-file-load-internal file)
+       (not (pases:component-loaded-internal file))))
+
 (pases:luna-define-method pases:load :before ((file pases:elisp-source) &optional parent)
   (let ((basedir (pases:component-pathname-internal parent)))
-    (pases:debug-message "loading %s from %s." (pases:component-name-internal c) basedir)
-    (if (pases:source-file-load-internal file)
-        (if (pases:component-pathname-internal file)
-            (load (pases:component-pathname-internal file))
-          (load (expand-file-name (pases:component-name-internal file)
-                                  basedir))))))
+    (pases:debug-message "loading %s from %s."
+                         (pases:component-name-internal c) basedir)
+    (if (pases:component-pathname-internal file)
+        (load (pases:component-pathname-internal file))
+      (load (expand-file-name (pases:component-name-internal file)
+                              basedir)))))
+
+(pases:luna-define-method pases:unload-needed
+  ((file pases:elisp-source) &optional parent)
+  ;; Remove dir from load-path. A little hack.y
+  (let* ((basedir (pases:component-pathname-internal parent))
+         (dir (file-name-directory
+               (expand-file-name (pases:component-name-internal file) basedir)))
+         (mem (member dir load-path)))
+    (if mem
+        (setq load-path (delq (car mem) load-path))))
+  (or (pases:component-loaded-internal file)
+      (featurep (pases:mk-symbol (pases:component-name-internal file)))))
 
 (pases:luna-define-method pases:unload :before ((file pases:elisp-source) &optional parent)
   (let ((module (pases:mk-symbol (pases:component-name-internal file))))
-    (if (featurep module)
-        (condition-case err
-            (unload-feature module)
-          (error
-           (message "[pases] Caught error unloading %s: %s." module (cdr err)))))))
+    (condition-case err
+        (unload-feature module)
+      (error
+       (message "[pases] Caught error unloading %s: %s." module (cdr err))))))
 
 (pases:luna-define-method pases:compile-needed ((f pases:elisp-source) &optional parent)
   (let ((compile-after (pases:elisp-source-compile-after-internal f))
@@ -229,7 +249,8 @@
             (if autoloads-to
                 (let ((generated-autoload-file
                        (expand-file-name autoloads-to basedir)))
-                  (update-file-autoloads path t))))
+                  (update-file-autoloads path t)
+                  (kill-buffer (find-buffer-visiting generated-autoload-file)))))
             (if (not (pases:source-file-optional-internal f))
             (error "Error compiling %s " (pases:component-name-internal f))
           (message "Error compiling %s " (pases:component-name-internal f)))))))
@@ -290,29 +311,6 @@
 		     :name ,name
 		     ,@args))
  
-;; pases:source-dir
-(pases:luna-define-class pases:source-dir (pases:component))
-
-(pases:luna-define-internal-accessors 'pases:source-dir)
-
-(pases:luna-define-method pases:load :before ((dir pases:source-dir) &optional parent)
-  (let* ((basedir (pases:component-pathname-internal parent))
-         (fullpath (expand-file-name (pases:component-name-internal dir) basedir)))
-    (pases:debug-message "loading dir: %s." fullpath)
-    (add-to-list 'load-path fullpath)))
-
-(pases:luna-define-method pases:unload ((dir pases:source-dir) &optional parent)
-  (let* ((basedir (pases:component-pathname-internal parent))
-         (fullpath (expand-file-name (pases:component-name-internal dir) basedir))
-         (mem (member fullpath load-path)))
-    (if mem
-        (setq load-path (delq (car mem) load-path)))))
-
-(defmacro pases:defdir (name &rest args)
-  `(pases:luna-make-entity 'pases:source-dir
-		     :name ,name
-		     ,@args))
-
 ;; pases:module
 (pases:luna-define-class pases:module (pases:component) 
 		   (components
