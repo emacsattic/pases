@@ -105,12 +105,12 @@ existing values in alist with the same key, sorting them."
     (pases:untar-22 tar dir)))
 
 (defun pases:package-name (name-version)
-  (if (string-match "^\\(.*\\)-[^-]+$" name-version)
+  (if (string-match "^\\(.+\\)-\\([^-]+?\\)_?+$" name-version)
       (match-string-no-properties 1 name-version)))
 
 (defun pases:package-version (name-version)
-  (if (string-match "\\([^-]+[^_]\\)_?$" name-version)
-      (match-string-no-properties 1 name-version)))
+  (if (string-match "^\\(.+\\)-\\([^-]+?\\)_?$" name-version)
+      (match-string-no-properties 2 name-version)))
     
 (defun pases:check-old-versions (name version)
   (if (pases:package-enabled? name version)
