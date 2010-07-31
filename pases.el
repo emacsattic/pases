@@ -46,12 +46,29 @@
          (getenv "HOST")))
   "The name of the host that Emacs is running on.")
 
+(defvar pases:elc-dir
+  (expand-file-name
+   (format "~/.pases.%s.%d.d"
+           (substring 
+            (symbol-name pases:emacs-variant) 1)
+           emacs-major-version))
+  "Directory to store elc files in.")
+
 (defvar pases:debug t)
 
-(defun pases:byte-recompile-file (file)
-  (if (file-newer-than-file-p file (concat file "c"))
-      (byte-compile-file file)
-    t))
+(defun pases:byte-recompile-file (el-file)
+  (let ((elc-file
+	 (expand-file-name (concat (file-name-nondirectory el-file) "c")
+			   pases:elc-dir)))
+    (if (file-newer-than-file-p el-file elc-file)
+	(if (byte-compile-file el-file)
+	    (progn
+	      (if (file-exists-p elc-file)
+		  (delete-file elc-file))
+	      (rename-file (concat el-file "c") elc-file)
+	      t)
+	  nil)
+      t)))
 
 (defsubst pases:debug-message (str &rest args)
   (if pases:debug
@@ -237,25 +254,17 @@
 	 (autoloads-to (and autoloads-to-raw
 			    (if (string= (substring autoloads-to-raw -3) ".el")
 				autoloads-to-raw
-			      (concat autoloads-to-raw ".el"))))
-	 (targetdir))
+			      (concat autoloads-to-raw ".el")))))
     (let ((path (expand-file-name
                  (concat (pases:component-name-internal f) ".el")
                  basedir)))
       (pases:debug-message "maybe compiling %s." path)
       (if (pases:byte-recompile-file path)
-          (progn
-            (if targetdir
-                (let ((target-path
-                       (expand-file-name 
-                        (concat (pases:component-name-internal f) ".elc")
-                        targetdir)))
-                  (rename-file (concat path "c") target-path)))
-            (if autoloads-to
-                (let ((generated-autoload-file
-                       (expand-file-name autoloads-to basedir)))
-                  (update-file-autoloads path t)
-                  (kill-buffer (find-buffer-visiting generated-autoload-file)))))
+          (if autoloads-to
+              (let ((generated-autoload-file
+                     (expand-file-name autoloads-to basedir)))
+                (update-file-autoloads path t)
+                (kill-buffer (find-buffer-visiting generated-autoload-file))))
 	(if (not (pases:source-file-optional-internal f))
             (error "Error compiling %s " (pases:component-name-internal f))
           (message "Error compiling %s " (pases:component-name-internal f)))))))
@@ -267,14 +276,20 @@
   (put name 'pases:system component))
 
 (defun pases:put-elisp (name component)
-  (put name 'pases:elisp-source component))
+  (let ((s (if (symbolp name)
+	       s
+	     (intern (file-name-nondirectory name)))))
+    (put s 'pases:elisp-source component)))
 
 (defun pases:get-elisp (name)
-  (get name 'pases:elisp-source))
+  (let ((s (if (symbolp name)
+	       s
+	     (intern (file-name-nondirectory name)))))
+    (get s 'pases:elisp-source)))
 
 (defmacro pases:deffile (name &rest args)
   `(progn
-     (pases:put-elisp (intern ,name)
+     (pases:put-elisp ,name
                       (pases:luna-make-entity
                        'pases:elisp-source
                        :name ,name
@@ -289,7 +304,7 @@
                              `(:only-if
                                (lambda ()
                                  ,(plist-get args :only-if))))))
-     (pases:get-elisp (intern ,name))))
+     (pases:get-elisp ,name)))
 
 ;; pases:texi-file
 ;; (pases:luna-define-class pases:texi-source (pases:source-file))
@@ -407,7 +422,10 @@
                    :name "emacs"
                    :version emacs-version))
 
- (defun pases:load-all ()
+(if (not (file-directory-p pases:elc-dir))
+    (make-directory pases:elc-dir))
+
+(defun pases:load-all ()
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
 	pases:systems))
@@ -416,3 +434,5 @@
 
 ;; Load all systems.
 (pases:load-all)
+(add-to-list 'load-path
+             pases:elc-dir)
