@@ -5,7 +5,7 @@ PASESFILE = $(NAME)-$(VERSION).pases
 FILES = xmlunicode.el unichars.el
 
 $(PASESFILE): $(FILES)
-	tar c --owner=nobody --group=users -zf $(PASESFILE) $(FILES)
+	tar c --owner=nobody --group=users -zf $(PASESFILE) $(PASDEF) $(FILES)
 
 clean:
 	rm $(FILES)
