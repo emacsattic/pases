@@ -51,9 +51,7 @@
   (pases:deffile "elmo/modb-legacy")
   (pases:deffile "elmo/modb-standard")
   (pases:deffile "elmo/elmo-database"
-                 :only-if (or (featurep 'xemacs)
-                              (fboundp 'dynamic-link)
-                              (fboundp 'open-database)))
+                 :only-if (featurep 'xemacs))
   (pases:deffile "elmo/elmo-shimbun"
                  :only-if (pases:module-installed-p 'shimbun))
   (pases:deffile "elmo/elsp-spamfilter"

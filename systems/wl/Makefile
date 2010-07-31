@@ -28,3 +28,8 @@ DESCRIPTION	= Package for $NAME ($VERSION).
 
 include ../generic-git.mk
 include ../launchpad.mk
+
+$(PASESFILE): $(FILES)
+	# need to call make to make wl-news.el, maybe there is a better way
+	cd build && make
+	tar c --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES) $(PASDEF)
