@@ -1,9 +1,9 @@
 URL = http://orgmode.org/org-7.01g.tar.gz
 VERSION = 7.01g
-NAME = org
+NAME = org-mode
 PASESFILE = $(NAME)-$(VERSION).pases
 TARFILE = org-7.01g.tar.gz
-PASDEF = org.pasdef
+PASDEF = org-mode.pasdef
 DESCRIPTION = Package for org-mode $(VERSION)
 ELFILES = \
 build/contrib/lisp/*.el \
