@@ -7,7 +7,9 @@
  (list (pases:deffile 
         "js2" 
         :generate-autoloads-to "js2-loaddefs")
-       (pases:deffile "js2-loaddefs" :load t)) 
+       (pases:deffile "js2-loaddefs" 
+                      :load t
+                      :generated t))
  :after-load-hook (lambda ()
                     (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode)))
  :after-unload-hook (lambda ()
