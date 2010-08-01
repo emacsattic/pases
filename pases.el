@@ -290,10 +290,18 @@
     (and (or (not compile-after)
              (pases:modules-installed-p compile-after))
          (or (not only-if)
-             (funcall only-if)))))
+             (funcall only-if))
+         (file-newer-than-file-p
+          (expand-file-name
+           (pases:component-name-internal f)
+           (pases:component-pathname-internal parent))
+          (expand-file-name (concat (file-name-nondirectory 
+                                     (pases:component-name-internal f)) ".elc")
+                            pases:elc-dir)))))
 
 (pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
-  (let* ((autoloads-to-raw (pases:elisp-source-generate-autoloads-to-internal f))
+  (let* ((autoloads-to-raw (pases:elisp-source-generate-a
+utoloads-to-internal f))
 	 (autoloads-to (and autoloads-to-raw
 			    (if (string= (substring autoloads-to-raw -3) ".el")
 				autoloads-to-raw
