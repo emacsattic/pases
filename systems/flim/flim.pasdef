@@ -22,7 +22,8 @@
   (pases:deffile "mmcooked")
   (pases:deffile "mmexternal")
   (pases:deffile "mime-conf")
-  (pases:deffile "mailcap")
+  ;; obsolete
+  ;; (pases:deffile "mailcap")
   (pases:deffile "sasl")
   (pases:deffile "sasl-cram")
   (pases:deffile "sasl-digest")
@@ -38,7 +39,8 @@
   (pases:deffile "sha1")
   (pases:deffile "hmac-md5")
   (pases:deffile "hmac-sha1")
-  (pases:deffile "smtpmail")
+  ;; obsolete
+  ;; (pases:deffile "smtpmail")
   (pases:deffile "mel-b-dl"
                  :only-if (and (not (fboundp 'base64-encode-string))
                                (not (subrp (symbol-function 'base64-encode-string)))
