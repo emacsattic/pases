@@ -156,7 +156,7 @@
   
 ;; pases:component
 (pases:luna-define-class pases:component nil 
-		   (name version dependencies pathname dep-op loaded
+		   (name pathname dep-op loaded
 			 before-enable-hook after-enable-hook
                          before-compile-hook after-compile-hook
                          before-load-hook after-load-hook
