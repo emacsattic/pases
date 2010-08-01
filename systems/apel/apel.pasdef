@@ -163,19 +163,17 @@
   (pases:deffile "mcharset")
   (pases:deffile "timezone"
                  :only-if
-		 (or (condition-case nil
-			 (require 'timezone)
-		       (t t))
-		     (not (pases:module-installed-p "timezone"))
-                     (string= (aref (timezone-parse-date
-                                     "Sat, 1 Jan 00 00:00:00 GMT")
-                                    0)
-                              "2000")
-                     (string=
-                      (aref (timezone-parse-date
-                             "Wednesday, 31-Jan-01 09:00:00 GMT")
-                            0)
-                      "0")))
+                 (or
+                  (not (pases:module-installed-p "timezone"))
+                  (not (string= (aref (timezone-parse-date
+                                       "Sat, 1 Jan 00 00:00:00 GMT")
+                                      0)
+                                "2000"))
+                  (string=
+                   (aref (timezone-parse-date
+                          "Wednesday, 31-Jan-01 09:00:00 GMT")
+                         0)
+                   "0")))
   ;; invisible modules; provided for backward compatibility with old "tm".
   (pases:deffile "inv-xemacs"
                  :only-if (featurep 'xemacs))
