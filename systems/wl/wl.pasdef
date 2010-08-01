@@ -92,7 +92,7 @@
                  :only-if (and (not (featurep 'xemacs))
                                (and (boundp 'emacs-major-version) 
                                     (>= emacs-major-version 21))))
-  (pases:deffile "wl-mule"
+  (pases:deffile "wl/wl-mule"
                  :only-if (and (not (featurep 'xemacs))
                                (not (and (boundp 'emacs-major-version) 
                                          (>= emacs-major-version 21)))
