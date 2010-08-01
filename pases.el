@@ -269,14 +269,19 @@
                    (pases:source-file)
 		   (compile-after
                     generate-autoloads-to
+                    generated
                     only-if))
 (pases:luna-define-internal-accessors 'pases:elisp-source)
 
 ;; Enabling entails copying into pases:elc-dir.
 (pases:luna-define-method pases:enable-needed ((f pases:elisp-source) &optional parent)
-  (not (file-exists-p (expand-file-name
-		       (file-name-nondirectory (concat (pases:component-name-internal f) ".el"))
-		       pases:elc-dir))))
+  (let ((only-if (pases:elisp-source-only-if-internal f)))
+    (and (or (not only-if)
+             (funcall only-if))
+         (not (pases:elisp-source-generated-internal f))
+         (not (file-exists-p (expand-file-name
+                              (file-name-nondirectory (concat (pases:component-name-internal f) ".el"))
+                              pases:elc-dir))))))
 
 (pases:luna-define-method pases:enable ((f pases:elisp-source) &optional parent)
   (let ((file-name (concat (pases:component-name-internal f) ".el"))
