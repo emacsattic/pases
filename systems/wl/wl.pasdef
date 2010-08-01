@@ -110,7 +110,7 @@
   (pases:deffile "utils/bbdb-wl"
                  :only-if (pases:module-installed-p 'bbdb)
                  :generate-autoloads-to "wl-loaddefs")
-  (pases:deffile "wl-loaddefs" :load t))
+  (pases:deffile "wl-loaddefs" :load t :generated t))
  :after-load-hook
  (lambda ()
    (setq wl-icon-directory
