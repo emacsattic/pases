@@ -334,14 +334,13 @@ that package."
         (progn
           (if (pases:system-defined?  (pases:mk-symbol name))
                (progn
-                 (pases:oos pases:unload-op (pases:mk-symbol name))
+                 (pases:oos pases:disable-op (pases:mk-symbol name))
                  (pases:undef-system (pases:mk-symbol name))))
           (funcall recurse-delete package-path)
           (message "[pases] Uninstalled %s (%s). Restart emacs in case of problems."
                    name version)
           (let ((other-versions (assoc name (pases:disabled-packages))))
-            (if (and was-enabled 
-                     other-versions)
+            (if (and was-enabled other-versions)
                 (if (y-or-n-p (format "Other version of %s exists; enable? " name))
                     (pases:enable-package
                      name
