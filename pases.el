@@ -54,6 +54,8 @@
            emacs-major-version))
   "Directory to store elc files in.")
 
+(add-to-list 'load-path pases:elc-dir)
+
 (defvar pases:debug t)
 
 (defun pases:byte-recompile-file (el-file)
@@ -61,13 +63,9 @@
 	 (expand-file-name (concat (file-name-nondirectory el-file) "c")
 			   pases:elc-dir)))
     (if (file-newer-than-file-p el-file elc-file)
-	(if (byte-compile-file el-file)
-	    (progn
-	      (if (file-exists-p elc-file)
-		  (delete-file elc-file))
-	      (rename-file (concat el-file "c") elc-file)
-	      t)
-	  nil)
+	(let ((results (byte-compile-file el-file)))
+	  (or (eq results 'no-byte-compile)
+	      results))
       t)))
 
 (defsubst pases:debug-message (str &rest args)
@@ -79,17 +77,6 @@
 
 (defsubst pases:mk-list (l)
   (if (listp l) l (list l)))
-
-(defvar pases:file-blacklist '()
-  "Blacklist of files to not load.")
-
-;; (defadvice load (around pases:load-blacklist
-;;                         (file))
-;;   "Disable some files from loading."
-;;   (if (not (member file pases:do-file-blacklist))
-;;       ad-do-it))
-
-;; (ad-activate 'load)
 
 ;; borrowed from apel
 (defun pases:module-installed-p (module)
@@ -139,7 +126,8 @@
           (if before-hook (funcall before-hook))
           (funcall (pases:op-func-internal op) component parent)
           (if after-hook (funcall after-hook)))
-      (pases:debug-message "%s on %s not needed." op component))))
+      (pases:debug-message "%s on %s not needed." (pases:op-name-internal op)
+                           (pases:component-name-internal component)))))
 
 (setq pases:load-op (pases:luna-make-entity 'pases:op
                                       :func 'pases:load
@@ -155,13 +143,26 @@
                                                :func 'pases:compile
                                                :needed-func 'pases:compile-needed
                                                :name 'pases:compile-op))
+
+(setq pases:enable-op (pases:luna-make-entity 'pases:op
+					      :func 'pases:enable
+					      :needed-func 'pases:enable-needed
+                                               :name 'pases:enable-op))
+
+(setq pases:disable-op (pases:luna-make-entity 'pases:op
+                                               :func 'pases:disable
+                                               :needed-func 'pases:disable-needed
+                                               :name 'pases:disable-op))
   
 ;; pases:component
 (pases:luna-define-class pases:component nil 
 		   (name version dependencies pathname dep-op loaded
+			 before-enable-hook after-enable-hook
                          before-compile-hook after-compile-hook
                          before-load-hook after-load-hook
-                         before-unload-hook after-unload-hook))
+                         before-unload-hook after-unload-hook
+                         before-disable-hook after-disable-hook))
+
 
 (pases:luna-define-internal-accessors 'pases:component)
 
@@ -171,6 +172,10 @@
 (pases:luna-define-generic pases:unload-needed (component &optional parent))
 (pases:luna-define-generic pases:compile (component &optional parent))
 (pases:luna-define-generic pases:compile-needed (component &optional parent))
+(pases:luna-define-generic pases:enable (component &optional parent))
+(pases:luna-define-generic pases:enable-needed (component &optional parent))
+(pases:luna-define-generic pases:disable (component &optional parent))
+(pases:luna-define-generic pases:disable-needed (component &optional parent))
 
 ;; We only need to load if it is not loaded already.
 (pases:luna-define-method pases:load-needed ((c pases:component) &rest args)
@@ -185,6 +190,15 @@
 
 (pases:luna-define-method pases:unload ((c pases:component) &rest args)
   (pases:component-set-loaded-internal c nil))
+
+(pases:luna-define-method pases:compile-needed ((c pases:component) &rest args)
+  t)
+
+(pases:luna-define-method pases:enable-needed ((c pases:component) &rest args)
+  t)
+
+(pases:luna-define-method pases:disable-needed ((c pases:component) &rest args)
+  t)
 
 ;; pases:source-file
 (pases:luna-define-class pases:source-file (pases:component)
@@ -216,13 +230,6 @@
 
 (pases:luna-define-method pases:unload-needed
   ((file pases:elisp-source) &optional parent)
-  ;; Remove dir from load-path. A little hack.y
-  (let* ((basedir (pases:component-pathname-internal parent))
-         (dir (file-name-directory
-               (expand-file-name (pases:component-name-internal file) basedir)))
-         (mem (member dir load-path)))
-    (if mem
-        (setq load-path (delq (car mem) load-path))))
   (or (pases:component-loaded-internal file)
       (featurep (pases:mk-symbol (pases:component-name-internal file)))))
 
@@ -233,42 +240,58 @@
       (error
        (message "[pases] Caught error unloading %s: %s." module (cdr err))))))
 
-(pases:luna-define-method pases:compile-needed ((f pases:elisp-source) &optional parent)
-  ;; Ensure that the dir is in the load-path. A little hacky.
-  (let* ((basedir (pases:component-pathname-internal parent))
-         (dir (file-name-directory
-               (expand-file-name (pases:component-name-internal f) basedir))))
-    (add-to-list 'load-path dir))
+(pases:luna-define-method pases:enable-needed ((f pases:elisp-source) &optional parent)
+  (not (file-exists-p (expand-file-name
+		       (file-name-nondirectory (concat (pases:component-name-internal f) ".el"))
+		       pases:elc-dir))))
 
+(pases:luna-define-method pases:enable ((f pases:elisp-source) &optional parent)
+  (let ((file-name (concat (pases:component-name-internal f) ".el"))
+	(basedir (pases:component-pathname-internal parent)))
+    (copy-file (expand-file-name file-name basedir)
+	       (expand-file-name (file-name-nondirectory file-name) pases:elc-dir))))
+
+(pases:luna-define-method pases:disable-needed ((f pases:elisp-source) &optional parent)
+  (file-exists-p (expand-file-name
+                  (file-name-nondirectory (concat (pases:component-name-internal f) ".el"))
+                  pases:elc-dir)))
+
+(pases:luna-define-method pases:disable ((f pases:elisp-source) &optional parent)
+  (let* ((name (pases:component-name-internal f))
+         (el-file (expand-file-name (concat name ".el") pases:elc-dir))
+         (elc-file (expand-file-name (concat name ".elc") pases:elc-dir)))
+    (if (file-exists-p el-file) (delete-file el-file))
+    (if (file-exists-p elc-file) (delete-file elc-file))))
+  
+(pases:luna-define-method pases:compile-needed ((f pases:elisp-source) &optional parent)
   (let ((compile-after (pases:elisp-source-compile-after-internal f))
         (only-if (pases:elisp-source-only-if-internal f)))
-    (and (pases:source-file-compile-internal f)
-         (or (not compile-after)
+    (and (or (not compile-after)
              (pases:modules-installed-p compile-after))
          (or (not only-if)
              (funcall only-if)))))
-  
+
 (pases:luna-define-method pases:compile ((f pases:elisp-source) &optional parent)
-  (let* ((basedir (pases:component-pathname-internal parent))
-	 (autoloads-to-raw (pases:elisp-source-generate-autoloads-to-internal f))
+  (let* ((autoloads-to-raw (pases:elisp-source-generate-autoloads-to-internal f))
 	 (autoloads-to (and autoloads-to-raw
 			    (if (string= (substring autoloads-to-raw -3) ".el")
 				autoloads-to-raw
 			      (concat autoloads-to-raw ".el")))))
     (let ((path (expand-file-name
-                 (concat (pases:component-name-internal f) ".el")
-                 basedir)))
+                 (file-name-nondirectory (concat (pases:component-name-internal f) ".el"))
+                 pases:elc-dir)))
       (pases:debug-message "maybe compiling %s." path)
-      (if (pases:byte-recompile-file path)
-          (if autoloads-to
-              (let ((generated-autoload-file
-                     (expand-file-name autoloads-to basedir)))
-                (update-file-autoloads path t)
-                (kill-buffer (find-buffer-visiting generated-autoload-file))))
-	(if (not (pases:source-file-optional-internal f))
-            (error "Error compiling %s " (pases:component-name-internal f))
-          (message "Error compiling %s " (pases:component-name-internal f)))))))
-
+      (if (pases:source-file-compile-internal f)
+          (if (pases:byte-recompile-file path)
+              (if autoloads-to
+                  (let ((generated-autoload-file
+                         (expand-file-name autoloads-to pases:elc-dir)))
+                    (update-file-autoloads path t)
+                    (kill-buffer (find-buffer-visiting generated-autoload-file))))
+            (if (not (pases:source-file-optional-internal f))
+                (error "Error compiling %s" (pases:component-name-internal f))
+              (message "Error compiling %s" (pases:component-name-internal f))))))))
+  
 (defun pases:get-system (name)
   (get name 'pases:system))
 
@@ -299,7 +322,10 @@
                        ,@(if (not (plist-member args :optional))
                              '(:optional nil))
                        ,@(if (not (plist-member args :dep-op))
-                             '(:dep-op (quote ((pases:load-op . pases:compile-op)))))
+                             '(:dep-op
+			       (quote ((pases:load-op . pases:compile-op)
+				       (pases:compile-op . pases:enable-op)
+                                       (pases:disable-op . pases:unload-op)))))
                        ,@(if (plist-member args :only-if)
                              `(:only-if
                                (lambda ()
@@ -357,17 +383,31 @@
 (pases:luna-define-internal-accessors 'pases:module)
 
 (pases:luna-define-method pases:load :before ((m pases:module) &optional parent)
-  (pases:debug-message "loading module components from %s."
+  (pases:debug-message "Loading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:load-op c m))
           (pases:module-components-internal m)))
 
 (pases:luna-define-method pases:unload :before ((m pases:module) &optional parent)
-  (pases:debug-message "unloading module components from %s."
+  (pases:debug-message "Unloading module components from %s."
 		       (pases:component-pathname-internal m))
   (mapc (lambda (c)
 	  (pases:operate pases:unload-op c m))
+        (reverse (pases:module-components-internal m))))
+
+(pases:luna-define-method pases:enable :before ((m pases:module) &optional parent)
+  (pases:debug-message "Enabling module components from %s."
+		       (pases:component-pathname-internal m))
+  (mapc (lambda (c)
+	  (pases:operate pases:enable-op c m))
+        (pases:module-components-internal m)))
+
+(pases:luna-define-method pases:disable :before ((m pases:module) &optional parent)
+  (pases:debug-message "Disabling module components from %s."
+		       (pases:component-pathname-internal m))
+  (mapc (lambda (c)
+	  (pases:operate pases:disable-op c m))
         (reverse (pases:module-components-internal m))))
 
 ;; pases:system
@@ -377,15 +417,23 @@
 (pases:luna-define-internal-accessors 'pases:system)
 
 (pases:luna-define-method pases:load :before ((s pases:system) &optional basedir)
-  (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
+  (pases:debug-message "Compiling system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
 	(pases:mk-list (pases:system-after-internal s))))
 
 (pases:luna-define-method pases:compile :before ((s pases:system) &optional basedir)
-  (pases:debug-message "[pases] loading system %s." (pases:component-name-internal s) basedir)
+  (pases:debug-message "Compiling system %s." (pases:component-name-internal s) basedir)
   (mapc (lambda (s)
 	  (pases:oos pases:compile-op s))
+	(pases:mk-list (pases:system-after-internal s))))
+
+(pases:luna-define-method pases:enable :before
+  ((s pases:system) &optional basedir)
+  (pases:debug-message "Enabling system %s."
+		       (pases:component-name-internal s) basedir)
+  (mapc (lambda (s)
+	  (pases:oos pases:enable-op s))
 	(pases:mk-list (pases:system-after-internal s))))
 
 (defmacro pases:defsystem (name &rest args)
@@ -395,7 +443,12 @@
                         'pases:system
                         :name (symbol-name (quote ,name))
                         :pathname (file-name-directory (file-truename load-file-name))
-                        ,@args))
+                        ,@args
+                        ,@(if (not (plist-member args :dep-op))
+                              '(:dep-op
+                                (quote ((pases:load-op . pases:compile-op)
+                                        (pases:compile-op . pases:enable-op)
+                                        (pases:disable-op . pases:unload-op)))))))
      (add-to-list 'pases:systems (quote ,name))))
 
 (defun pases:read-sysdef (file)
@@ -434,5 +487,3 @@
 
 ;; Load all systems.
 (pases:load-all)
-(add-to-list 'load-path
-             pases:elc-dir)

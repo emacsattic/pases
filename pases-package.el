@@ -209,7 +209,7 @@ If optional argument VERSION is supplied, checks the version."
   (interactive (list (pases:completing-read-enabled-package)))
   (let ((path (pases:enabled-package-path name))
         (version (pases:enabled-version name)))
-    (pases:oos pases:unload-op (pases:mk-symbol name))
+    (pases:oos pases:disable-op (pases:mk-symbol name))
     (pases:undef-system (pases:mk-symbol name))
     (rename-file path (concat path "_"))
     (message "[pases] Disabled %s (%s). Restart emacs in case of problems."
