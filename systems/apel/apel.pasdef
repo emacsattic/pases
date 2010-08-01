@@ -5,6 +5,7 @@
  :components
  (list  
   ;; apel core
+  (pases:deffile "product")
   (pases:deffile "alist")
   (pases:deffile "calist")
   (pases:deffile "path-util" :load t)
@@ -13,7 +14,6 @@
   ;; emulation
   (pases:deffile "static")
   (pases:deffile "broken")
-  (pases:deffile "product")
   (pases:deffile "apel-ver")
   (pases:deffile "pym")
   
@@ -161,9 +161,21 @@
                                (not (boundp 'NEMACS))))
 
   (pases:deffile "mcharset")
-  ;; ;; punting, apel does some magic here, not sure what for.
-  (pases:deffile "timezone")
-
+  (pases:deffile "timezone"
+                 :only-if
+		 (or (condition-case nil
+			 (require 'timezone)
+		       (t t))
+		     (not (pases:module-installed-p "timezone"))
+                     (string= (aref (timezone-parse-date
+                                     "Sat, 1 Jan 00 00:00:00 GMT")
+                                    0)
+                              "2000")
+                     (string=
+                      (aref (timezone-parse-date
+                             "Wednesday, 31-Jan-01 09:00:00 GMT")
+                            0)
+                      "0")))
   ;; invisible modules; provided for backward compatibility with old "tm".
   (pases:deffile "inv-xemacs"
                  :only-if (featurep 'xemacs))
@@ -207,4 +219,6 @@
                                         (>= emacs-minor-version 29)))))))
   
   ;; mule-caesar.el; part of apel-modules, but it is version-dependent.
-  (pases:deffile "mule-caesar")))
+  (pases:deffile "mule-caesar")
+  
+  (pases:deffile "install")))
