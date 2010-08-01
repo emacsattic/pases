@@ -27,8 +27,6 @@
                  :compile-after '("bbdb"))
   (pases:deffile "mime-w3"
                  :compile-after '("w3"))
-  ;; obsoleted?
-  ;;,(pases:deffile "mime-mc")
   (pases:deffile "mime-image"
                  :only-if (or (string-match "XEmacs" emacs-version)
                               (featurep 'mule)))))
