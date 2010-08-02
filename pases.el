@@ -61,8 +61,6 @@
   (let ((elc-file
 	 (expand-file-name (concat (file-name-nondirectory el-file) "c")
 			   pases:elc-dir)))
-    (if (not (file-directory-p pases:elc-dir))
-        (make-directory pases:elc-dir))
     (if (file-newer-than-file-p el-file elc-file)
 	(let ((results (byte-compile-file el-file)))
 	  (or (eq results 'no-byte-compile)
@@ -284,6 +282,8 @@
 (pases:luna-define-method pases:enable ((f pases:elisp-source) &optional parent)
   (let ((file-name (concat (pases:component-name-internal f) ".el"))
 	(basedir (pases:component-pathname-internal parent)))
+    (if (not (file-directory-p pases:elc-dir))
+        (make-directory pases:elc-dir))
     (copy-file (expand-file-name file-name basedir)
 	       (expand-file-name (file-name-nondirectory file-name) pases:elc-dir))))
 
