@@ -4,19 +4,58 @@
 
 Pases is a packaging and system definition system for Emacs.
 
+Features
+~~~~~~~~
+
+For users:
+
+- Installation of bundled software from local package files.
+- No modification of .emacs file to add to load-path, etc., when
+  installing a new emacs package.
+- Separation of compiled .elc files according to Emacs variant and
+  major version.
+
+For packagers:
+- Multi-file packages easily handled.
+- Easy specification of package loading order.
+- Fine-tuned selection of which Elisp source files to enable and
+  compile based on any properties of Emacs installation (e.g., Xemacs
+  only files, different sources for GNU emacs 22 and 23, etc.)
+- No modification to original Emacs source is necessary to create
+  packages.
+- Generation of autoloads via pases.
+- Self-hosting (pases is itself a pases package).
+
 Installing
 ~~~~~~~~~~
 
-To begin using Pases, unpack the distribution to a directory. We will
-assume that you have unpacked it to ``~/.pases.d/pases-0.2/``. Then
-add the following to your .emacs file::
+To begin, bootsrap pases by evaluating the following code in Emacs::
 
-  (load (expand-file-name "~/.pases.d/pases-0.2/pases"))
+  (let ((buffer (url-retrieve-synchronously
+  	       "http://e6h.org/~egh/tmp/pases-bootstrap.el")))
+    (save-excursion
+      (set-buffer buffer)
+      (goto-char (point-min))
+      (re-search-forward "^$" nil 'move)
+      (eval-region (point) (point-max))
+      (kill-buffer (current-buffer))))
 
-That is all you need. Either restart Emacs or evaluate that line.
+You are now ready to install your first pases package, pases itself.
+Download the pases-0.2.pases distribution, and type::
 
-Using
-~~~~~
+  M-x pases:install-package
+
+Choose the pases-0.2.pases package. Pases should install, compile, and
+enable itself. Finally, add the following to your ``.emacs`` file::
+
+  (load (expand-file-name "~/.pases.d/pases-0.2/pases-load"))
+
+That is all you need. You do not need to restart emacs, because the
+pases-bootstrap loaded all necessary code. You can install any needed
+packages.
+
+Further usage
+~~~~~~~~~~~~~
 
 You can install packages with::
 
