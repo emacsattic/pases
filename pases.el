@@ -61,6 +61,8 @@
   (let ((elc-file
 	 (expand-file-name (concat (file-name-nondirectory el-file) "c")
 			   pases:elc-dir)))
+    (if (not (file-directory-p pases:elc-dir))
+        (make-directory pases:elc-dir))
     (if (file-newer-than-file-p el-file elc-file)
 	(let ((results (byte-compile-file el-file)))
 	  (or (eq results 'no-byte-compile)
@@ -147,10 +149,6 @@
   (mapc (lambda (s)
 	  (pases:oos pases:load-op s))
 	pases:systems))
-
-;; Load luna.
-(load (expand-file-name "pases-luna"
-                        (file-name-directory load-file-name)))
 
 ;; pases:op
 ;; An "operation", e.g. compile, load.
@@ -477,6 +475,8 @@
 
 (pases:luna-define-method pases:load :before ((s pases:system) &optional basedir)
   (pases:debug-message "Loading system %s." (pases:component-name-internal s) basedir)
+  (if (not (member pases:elc-dir load-path))
+      (add-to-list 'load-path pases:elc-dir))
   (pases:handle-after s pases:load-op))
 
 (defmacro pases:defsystem (name &rest args)
@@ -493,21 +493,3 @@
                                         (pases:compile-op . pases:enable-op)
                                         (pases:disable-op . pases:unload-op)))))))
      (add-to-list 'pases:systems (quote ,name))))
-
-;; Define a system for emacs.
-(pases:put-system 'emacs 
-                  (pases:luna-make-entity 
-                   'pases:system
-                   :name "emacs"
-                   :version emacs-version))
-
-(if (not (file-directory-p pases:elc-dir))
-    (make-directory pases:elc-dir))
-
-;; Load packaging
-(load (expand-file-name "pases-package"
-                        (file-name-directory load-file-name)))
-
-;; Load all systems.
-(add-to-list 'load-path pases:elc-dir)
-(pases:load-all)
