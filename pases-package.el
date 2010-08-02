@@ -1,8 +1,8 @@
 ;;; pases-package.el --- packaging & system definition for Emacs
 ;;
-;; Copyright (C) 2008 Erik Hetzner
+;; Copyright (C) 2008-2010 Erik Hetzner
 ;;
-;; Author: Erik Hetzner <ehetzner@gmail.com>
+;; Author: Erik Hetzner <egh@e6h.org>
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
