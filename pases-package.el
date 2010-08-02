@@ -251,6 +251,8 @@ If optional argument VERSION is supplied, checks the version."
 	 (package-install-dir (expand-file-name
                                name-version
                                pases:package-install-dir)))
+    (if (not (file-directory-p pases:package-install-dir))
+        (mkdir pases:package-install-dir t))
     (pases:check-old-versions name version)
     (make-directory package-install-dir)
     (pases:untar package-path package-install-dir)
