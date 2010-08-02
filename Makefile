@@ -2,8 +2,9 @@ NAME=pases
 VERSION=0.2
 PASESFILE = $(NAME)-$(VERSION).pases
 FILES=pases.el \
-luna.el \
+pases-luna.el \
 pases-package.el \
+pases-load.el \
 pases.pasdef \
 README
 
@@ -12,3 +13,6 @@ $(PASESFILE): $(FILES)
 
 clean:
 	rm $(PASESFILE)
+
+pases-bootstrap.el:
+	cat pases-luna.el pases.el pases-package.el > pases-bootstrap.el
