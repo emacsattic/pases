@@ -456,7 +456,7 @@
 ;; pases:system
 ;; A system is a top level module, with a symbol for a name.
 (pases:luna-define-class pases:system (pases:module)
-                         (after version))
+                         (after version check-dependencies))
 (pases:luna-define-internal-accessors 'pases:system)
 
 (pases:luna-define-generic pases:handle-after (system op))
