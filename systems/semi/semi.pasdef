@@ -6,12 +6,12 @@
  :components
  (list
   (pases:deffile "signature")
-  (pases:deffile "pgg-def")
-  (pases:deffile "pgg")
-  (pases:deffile "pgg-parse")
-  (pases:deffile "pgg-gpg")
-  (pases:deffile "pgg-pgp5")
-  (pases:deffile "pgg-pgp")
+  (pases:deffile "pgg-def" :only-if (not (pases:module-installed-p "pgg-def")))
+  (pases:deffile "pgg" :only-if (not (pases:module-installed-p "pgg")))
+  (pases:deffile "pgg-parse" :only-if (not (pases:module-installed-p "pgg-parse")))
+  (pases:deffile "pgg-gpg" :only-if (not (pases:module-installed-p "pgg-gpg")))
+  (pases:deffile "pgg-pgp5" :only-if (not (pases:module-installed-p "pgg-pgp5")))
+  (pases:deffile "pgg-pgp" :only-if (not (pases:module-installed-p "pgg-pgp")))
   (pases:deffile "mime-pgp")
   (pases:deffile "smime")
   (pases:deffile "semi-def")
