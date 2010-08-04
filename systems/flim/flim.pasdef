@@ -3,12 +3,15 @@
  flim
  :version "1.14.9"
  :after '(apel)
+ :check-dependencies (lambda ()
+   (if (not (product-version>= (product-find-by-name "APEL") '(10 7)))
+     (error "APEL version not >= 10.7"))
  :components
  (list
   (pases:deffile "std11")
   (pases:deffile "luna")
   (pases:deffile "lunit")
-  (pases:deffile "mime-def")
+  (pases:deffile "mime-def" :load t)
   (pases:deffile "mel")
   (pases:deffile "mel-q")
   (pases:deffile "mel-u")
