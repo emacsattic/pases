@@ -1,7 +1,8 @@
 PASESFILE = $(NAME)-$(VERSION).pases
 
 $(PASESFILE): $(FILES)
-	tar c --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES) $(PASDEF)
+	cd build && zip ../$(PASESFILE) $(FILES)
+	zip $(PASESFILE) $(PASDEF)
 
 build:
 	git clone $(GITURL) build
