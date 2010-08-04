@@ -3,6 +3,11 @@
  semi
  :version "1.14.6"
  :after '(flim)
+ :check-dependencies (lambda ()
+   (if (not (and (>= (nth 0 (aref mime-library-product 1)) 1)
+                 (>= (nth 1 (aref mime-library-product 1)) 14)
+                 (>= (nth 2 (aref mime-library-product 1)) 2)))
+     (error "FLIM version not >= 1.14.2")))
  :components
  (list
   (pases:deffile "signature")
@@ -14,7 +19,7 @@
   (pases:deffile "pgg-pgp" :only-if (not (pases:module-installed-p "pgg-pgp")))
   (pases:deffile "mime-pgp")
   (pases:deffile "smime")
-  (pases:deffile "semi-def")
+  (pases:deffile "semi-def" :load t)
   (pases:deffile "mime-view")
   (pases:deffile "mime-play")
   (pases:deffile "mime-partial")
