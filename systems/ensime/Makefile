@@ -24,7 +24,7 @@ clean:
 	rm $(PASESFILE)
 	rm $(ZIPFILE)
 
-$(TARFILE):
+$(ZIPFILE):
 	wget "$(URL)" -q
 
 .unpack: $(ZIPFILE) build
