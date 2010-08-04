@@ -14,5 +14,5 @@ $(PASESFILE): $(FILES)
 clean:
 	rm $(PASESFILE)
 
-pases-bootstrap.el:
+pases-bootstrap.el: pases-luna.el pases.el pases-package.el
 	cat pases-luna.el pases.el pases-package.el > pases-bootstrap.el
