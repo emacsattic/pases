@@ -5,13 +5,13 @@
  :load-after '(scala-mode auto-complete)
  :version "20100726"
  :components
- (list (pases:deffile "./elisp/ensime-auto-complete")
-       (pases:deffile "./elisp/ensime-test")
-       (pases:deffile "./elisp/ensime-debug")
-       (pases:deffile "./elisp/ensime-inf")
-       (pases:deffile "./elisp/ensime-config")
-       (pases:deffile "./elisp/ensime")
-       (pases:deffile "./elisp/ensime-sbt"))
+ (list (pases:deffile "elisp/ensime-auto-complete")
+       (pases:deffile "elisp/ensime-test")
+       (pases:deffile "elisp/ensime-debug")
+       (pases:deffile "elisp/ensime-inf")
+       (pases:deffile "elisp/ensime-config")
+       (pases:deffile "elisp/ensime")
+       (pases:deffile "elisp/ensime-sbt"))
  :after-load-hook (lambda ()
                     (chmod (expand-file-name
                             "bin/server.sh"
