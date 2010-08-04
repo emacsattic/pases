@@ -19,16 +19,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-(require 'tar-mode)
-(require 'jka-compr)
-
-;; A "package" is a gzipped tar file that can be installed by the
-;; user. It should be named package-version.pases. It should unpack in
-;; the current directory (i.e., it is a tar-bomb). An installed
-;; package is one installed in the user's pases:package-dirs.  A
-;; disable packaged is an installed package that ends in _; an enabled
-;; package is any undisabled, installed package. There should only be
-;; one version of any package installed at once.
+;; A "package" is a zip file that can be installed by the user. It
+;; should be named package-version.pases. It should unpack in the
+;; current directory (i.e., it is a tar-bomb). An installed package is
+;; one installed in the user's pases:package-dirs. A disable packaged
+;; is an installed package that ends in _; an enabled package is any
+;; undisabled, installed package. There should only be one version of
+;; any package installed at once.
 
 (defcustom pases:package-dirs
   (list (expand-file-name "~/.pases.d/"))
@@ -41,22 +38,6 @@
   "Directory to install user packages in."
   :type 'directory
   :group 'pases)
-
-(defcustom pases:tar-bin
-  "tar"
-  "Program to use for untarring packages (in Emacs 23)."
-  :type 'string
-  :group 'pases)
-
-(unless (member "\\.pases\\'" (mapcar (lambda (vec) (elt vec 0))
-                                     jka-compr-compression-info-list))
-    (add-to-list 'jka-compr-compression-info-list
-               ["\\.pases\\'" nil nil nil
-                "uncompressing"  "gzip"  ("-c" "-q" "-d")
-                nil t "^_\213"])
-    (when (jka-compr-installed-p)
-      (jka-compr-uninstall)
-      (jka-compr-install)))
 
 (defun pases:merge-into-alist (alist elm)
   "Merge elm into alist, appeneding the values of elm to any
@@ -84,25 +65,12 @@ existing values in alist with the same key, sorting them."
      b)
     new-alist))
 
-(defun pases:untar-22 (tar dir)
-  (save-excursion
-    (with-temp-buffer
-      (insert-file-contents tar)
-      (let ((default-directory dir))
-        (tar-summarize-buffer)
-        (tar-untar-buffer)))))
-  
-(defun pases:untar-23 (tar dir)
-  (let ((args (list pases:tar-bin nil nil nil
-		    "x" "-C" (expand-file-name dir)
-		    "-zf" (expand-file-name tar))))
-  (if (not (eq 0 (apply 'call-process args)))
-      (error "[pases] Could not untar %s into %s." tar dir))))
-
-(defun pases:untar (tar dir)
-  (if (eq emacs-major-version 23)
-      (pases:untar-23 tar dir)
-    (pases:untar-22 tar dir)))
+(defun pases:unzip (zip dir)
+  (let ((args (list "unzip" nil nil nil
+                    "-d" (expand-file-name dir)
+                    (expand-file-name zip))))
+    (if (not (eq 0 (apply 'call-process args)))
+        (error "[pases] Could not unzip %s into %s." zip dir))))
 
 (defun pases:package-name (name-version)
   (if (string-match "^\\(.+\\)-\\([^-]+?\\)_?+$" name-version)
@@ -255,7 +223,7 @@ If optional argument VERSION is supplied, checks the version."
         (mkdir pases:package-install-dir t))
     (pases:check-old-versions name version)
     (make-directory package-install-dir)
-    (pases:untar package-path package-install-dir)
+    (pases:unzip package-path package-install-dir)
     (pases:read-package-dir package-install-dir)
     (pases:oos pases:load-op (pases:mk-symbol name))
     (message "[pases] Successfully installed %s (%s) to %s." name version
