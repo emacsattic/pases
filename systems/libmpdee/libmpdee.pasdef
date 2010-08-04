@@ -4,5 +4,4 @@
  libmpdee
  :version "2.1"
  :components
- `(,(pases:defdir ".")
-   ,(pases:deffile "libmpdee")))
+ (list (pases:deffile "libmpdee")))

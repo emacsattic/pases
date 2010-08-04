@@ -6,30 +6,14 @@ PASDEF		= ensime.pasdef
 DESCRIPTION	= Package for $NAME ($VERSION).
 PASESFILE	= $(NAME)-$(VERSION).pases
 FILES		= \
-build/elisp/ensime*.el \
-build/LICENSE \
-build/README.md \
-build/bin/server.bat \
-build/bin/server.sh \
-build/lib/*.jar
+elisp/ensime*.el \
+LICENSE \
+README.md \
+bin/server.bat \
+bin/server.sh \
+lib/*.jar
 
-$(PASESFILE): $(FILES)
-	tar c -p --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES) $(PASDEF)
-
-build: 
-	mkdir build
-
-clean:
-	rm -rf build
-	rm $(PASESFILE)
-	rm $(ZIPFILE)
-
-$(ZIPFILE):
-	wget "$(URL)" -q
+include ../generic-zip.mk
 
 .unpack: $(ZIPFILE) build
 	rm -rf build ; mkdir build ; cd build ; unzip ../$(ZIPFILE) ; mv -f dist/* . ; mv -f dist/.ensime.example . ; rmdir dist
-
-$(FILES): .unpack
-
-include ../launchpad.mk

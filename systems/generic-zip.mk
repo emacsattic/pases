@@ -10,13 +10,13 @@ build:
 clean:
 	rm -rf build
 	rm $(PASESFILE)
-	rm $(TARFILE)
+	rm $(ZIPFILE)
 
-$(TARFILE):
+$(ZIPFILE):
 	wget "$(URL)" -q
 
-.unpack: $(TARFILE) build
-	tar x --strip-components 1 --format=v7 -C build -zf $(TARFILE)
+.unpack: $(ZIPFILE) build
+	cd build && unzip ../$(ZIPFILE)
 
 $(FILES): .unpack
 

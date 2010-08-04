@@ -5,7 +5,9 @@
  :version "0.29"
  :depends '(libmpdee)
  :components
- `(,(pases:defdir ".")
-   ,(pases:deffile "mingus")))
+ (list (pases:deffile "mingus"))
+ :after-load-hook (lambda ()
+                    (autoload 'mingus "mingus"))
+ :after-unload-hook (lambda ()
+                      (fmakunbound 'mingus)))
 
-(autoload 'mingus "mingus")

@@ -5,14 +5,10 @@ PASESFILE = $(NAME)-$(VERSION).pases
 TARFILE = confluence-el-1.2.tar.gz
 PASDEF = confluence.pasdef
 DESCRIPTION = Package for confluence $(VERSION)
-ELFILES = \
-build/confluence.el \
-build/xml-rpc.el
-
-DOCFILES = \
-build/README
-
-FILES = $(ELFILES) $(DOCFILES)
+FILES = \
+confluence.el \
+xml-rpc.el \
+README
 
 include ../generic-targz.mk
 include ../launchpad.mk

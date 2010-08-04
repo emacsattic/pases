@@ -1,11 +1,11 @@
-VERSION = 1.10
-NAME = xmlunicode
-PASDEF = xmlunicode.pasdef
-PASESFILE = $(NAME)-$(VERSION).pases
-FILES = xmlunicode.el unichars.el
+VERSION		= 1.10
+NAME		= xmlunicode
+PASDEF		= xmlunicode.pasdef
+PASESFILE	= $(NAME)-$(VERSION).pases
+FILES		= xmlunicode.el unichars.el
 
 $(PASESFILE): $(FILES)
-	tar c --owner=nobody --group=users -zf $(PASESFILE) $(PASDEF) $(FILES)
+	zip $(PASESFILE) $(FILES) $(PASDEF)
 
 clean:
 	rm $(FILES)
