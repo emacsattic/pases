@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp -*-
 (pases:defsystem
  wl
- :version "1.14.6"
+ :version "2.15.9_20100720"
  :after '(semi)
  :check-dependencies (lambda ()
    (if (not (and (>= (nth 0 (aref mime-user-interface-product 1)) 1)
@@ -20,8 +20,7 @@
   (pases:deffile "elmo/elmo-util")
   (pases:deffile "elmo/elmo-version")
   (pases:deffile "elmo/elmo-vars")
-  (pases:deffile "elmo/elmo"
-                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "elmo/elmo")
   (pases:deffile "elmo/elmo-msgdb")
   (pases:deffile "elmo/elmo-net")
   (pases:deffile "elmo/elmo-imap4")
@@ -44,8 +43,7 @@
   (pases:deffile "elmo/elmo-dop")
   (pases:deffile "elmo/elmo-search")
   (pases:deffile "elmo/elmo-file")
-  (pases:deffile "elmo/elmo-split"
-                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "elmo/elmo-split")
   (pases:deffile "elmo/elmo-spam")
   (pases:deffile "elmo/elsp-bogofilter")
   (pases:deffile "elmo/elsp-sa")
@@ -62,21 +60,17 @@
   (pases:deffile "elmo/elsp-spamfilter"
                  :only-if (pases:module-installed-p 'spamfilter))
   (pases:deffile "elmo/elmo-mime")
-
-  (pases:deffile "wl/wl"
-                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "wl/wl")
   (pases:deffile "wl/wl-folder")
   (pases:deffile "wl/wl-summary")
   (pases:deffile "wl/wl-action")
   (pases:deffile "wl/wl-message")
   (pases:deffile "wl/wl-vars")
-  (pases:deffile "wl/wl-draft"
-                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "wl/wl-draft")
   (pases:deffile "wl/wl-util")
   (pases:deffile "wl/wl-version")
   (pases:deffile "wl/wl-address")
-  (pases:deffile "wl/wl-addrmgr"
-                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "wl/wl-addrmgr")
   (pases:deffile "wl/wl-highlight")
   (pases:deffile "wl/wl-demo")
   (pases:deffile "wl/wl-refile")
@@ -103,22 +97,35 @@
                                          (>= emacs-major-version 21)))
                                (featurep 'mule)))
   (pases:deffile "wl/wl-mime")
-
   (pases:deffile "utils/rfc2368")
-  (pases:deffile "utils/im-wl"
-                 :generate-autoloads-to "wl-loaddefs")
+  (pases:deffile "utils/im-wl")
   (pases:deffile "utils/wl-mailto")
   (pases:deffile "utils/wl-addrbook")
   (pases:deffile "utils/wl-complete")
   (pases:deffile "utils/ssl"
                  :only-if (pases:module-installed-p 'base64))
   (pases:deffile "utils/bbdb-wl"
-                 :only-if (pases:module-installed-p 'bbdb)
-                 :generate-autoloads-to "wl-loaddefs")
-  (pases:deffile "wl-loaddefs" :load t :generated t))
+                 :only-if (pases:module-installed-p 'bbdb)))
  :after-load-hook
  (lambda ()
+   (autoload 'wl "wl" "Wanderlust" t)
+   (autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
+   (autoload 'wl-draft "wl" "Write draft with Wanderlust." t)
+   (autoload 'wl-user-agent-compose "wl-draft" nil t)
+   (if (fboundp 'define-mail-user-agent)
+       (define-mail-user-agent
+         'wl-user-agent
+         'wl-user-agent-compose
+         'wl-draft-send
+         'wl-draft-kill
+         'mail-send-hook))
    (setq wl-icon-directory
-         (expand-file-name "etc/wl/icons"
+         (expand-file-name "etc/icons"
                            (pases:component-pathname-internal
-                            pases:current-component)))))
+                            pases:current-component))))
+ :after-unload-hook
+ (lambda ()
+   (fmakunbound 'wl)
+   (fmakunbound 'wl-other-frame)
+   (fmakunbound 'wl-draft)
+   (fmakunbound 'wl-user-agent-compose)))

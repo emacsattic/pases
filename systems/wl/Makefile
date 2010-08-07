@@ -1,7 +1,7 @@
 GITURL		= http://github.com/wanderlust/wanderlust.git
 NAME		= wl
-VERSION		= 2.15.9
-TAG		= wl-2_15_9
+VERSION	        = 2.15.9_20100720
+TAG             = 1aba45b3db1e97f8870e5af15c7e721177398564
 PASDEF		= wl.pasdef
 FILES		= \
 BUGS \
