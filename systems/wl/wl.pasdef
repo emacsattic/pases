@@ -7,7 +7,7 @@
    (if (not (and (>= (nth 0 (aref mime-user-interface-product 1)) 1)
                  (>= (nth 1 (aref mime-user-interface-product 1)) 14)
                  (>= (nth 2 (aref mime-user-interface-product 1)) 6)))
-     (error "SEMI version not >= 1.14.6")))
+     (signal 'depend-error "SEMI version not >= 1.14.6")))
  :components
  (list
   (pases:deffile "elmo/utf7")
