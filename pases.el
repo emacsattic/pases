@@ -311,7 +311,7 @@
     (let ((path (expand-file-name
                  (file-name-nondirectory (concat (pases:component-name-internal f) ".el"))
                  pases:elc-dir)))
-      (pases:debug-message "maybe compiling %s." path)
+      (pases:debug-message "Maybe compiling %s." path)
       (if (pases:source-file-compile-internal f)
           (if (pases:byte-recompile-file path)
               (if autoloads-to
@@ -462,7 +462,9 @@
 (pases:luna-define-generic pases:handle-after (system op))
 (pases:luna-define-method pases:handle-after ((system pases:system) op)
   (mapc (lambda (after-system)
-	  (pases:oos op after-system))
+          (if (pases:system-defined? after-system)
+              (pases:oos op after-system)
+            (error "System %s not defined!" after-system)))
 	(pases:mk-list (pases:system-after-internal system))))
 
 (pases:luna-define-method pases:enable :before ((s pases:system) &optional basedir)
@@ -493,3 +495,7 @@
                                         (pases:compile-op . pases:enable-op)
                                         (pases:disable-op . pases:unload-op)))))))
      (add-to-list 'pases:systems (quote ,name))))
+
+(put 'depend-error
+     'error-conditions
+     '(error depend-error))
