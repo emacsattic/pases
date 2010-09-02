@@ -1,7 +1,7 @@
 NAME		= ensime
-VERSION		= 0.0.20
-URL		= http://github.com/downloads/aemoncannon/ensime/ensime-0.0.20.zip
-ZIPFILE		= ensime-0.0.20.zip
+VERSION		= 0.2.5
+URL		= http://github.com/downloads/aemoncannon/ensime/ensime_2.8.0-0.2.5.tar.gz
+TARFILE		= ensime_2.8.0-0.2.5.tar.gz
 PASDEF		= ensime.pasdef
 DESCRIPTION	= Package for $NAME ($VERSION).
 PASESFILE	= $(NAME)-$(VERSION).pases
@@ -13,7 +13,4 @@ bin/server.bat \
 bin/server.sh \
 lib/*.jar
 
-include ../generic-zip.mk
-
-.unpack: $(ZIPFILE) build
-	rm -rf build ; mkdir build ; cd build ; unzip ../$(ZIPFILE) ; mv -f dist/* . ; mv -f dist/.ensime.example . ; rmdir dist
+include ../generic-targz.mk
