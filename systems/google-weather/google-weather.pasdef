@@ -1,0 +1,10 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ google-weather
+ :version "0.1"
+ :components
+ (list (pases:deffile "google-weather")
+       (pases:deffile "org-google-weather"      
+                      :generate-autoloads-to "google-weather-loaddefs")
+       (pases:deffile "google-weather-loaddefs" :load t :generated t)))
