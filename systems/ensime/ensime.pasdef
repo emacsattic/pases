@@ -3,9 +3,9 @@
 (pases:defsystem 
  ensime
  :load-after '(scala-mode auto-complete)
- :version "0.2.5"
+ :version "0.3.0"
  :components
- (list (pases:deffile "elisp/ensime")
+ (list (pases:deffile "elisp/ensime" :compile nil)
        (pases:deffile "elisp/ensime-auto-complete")
        (pases:deffile "elisp/ensime-builder")
        (pases:deffile "elisp/ensime-config")
