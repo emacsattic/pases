@@ -1,0 +1,12 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem 
+ speck
+ :version "20100525"
+ :components
+ (list (pases:deffile "speck" :generate-autoloads-to "speck-loaddefs")
+       (pases:deffile "speck-loaddefs" :load t :generated t))
+ :after-load-hook (lambda ()
+                    (add-hook 'text-mode-hook 'speck-mode))
+  :after-unload-hook (lambda ()
+                       (remove-hook 'text-mode-hook 'speck-mode)))
