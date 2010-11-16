@@ -2,7 +2,7 @@
 
 (pases:defsystem
  org-mode
- :version "7.01h"
+ :version "7.3"
  :components
  (list 
   ;; main
@@ -18,19 +18,24 @@
    (pases:deffile "lisp/ob-eval")
    (pases:deffile "lisp/ob-exp")
    (pases:deffile "lisp/ob-gnuplot")
+   (pases:deffile "lisp/ob-js")
    (pases:deffile "lisp/ob-haskell")
    (pases:deffile "lisp/ob-keys")
    (pases:deffile "lisp/ob-latex")
+   (pases:deffile "lisp/ob-ledger")
    (pases:deffile "lisp/ob-lob")
    (pases:deffile "lisp/ob-matlab")
    (pases:deffile "lisp/ob-mscgen")
    (pases:deffile "lisp/ob-ocaml")
    (pases:deffile "lisp/ob-octave")
+   (pases:deffile "lisp/ob-org")
    (pases:deffile "lisp/ob-perl")
+   (pases:deffile "lisp/ob-plantuml")
    (pases:deffile "lisp/ob-python")
    (pases:deffile "lisp/ob-ref")
    (pases:deffile "lisp/ob-ruby")
    (pases:deffile "lisp/ob-sass")
+   (pases:deffile "lisp/ob-scheme")
    (pases:deffile "lisp/ob-screen")
    (pases:deffile "lisp/ob-sh")
    (pases:deffile "lisp/ob-sql")
@@ -113,6 +118,7 @@
    (pases:deffile "contrib/lisp/org-collector")
    (pases:deffile "contrib/lisp/org-contribdir")
    (pases:deffile "contrib/lisp/org-depend")
+   (pases:deffile "contrib/lisp/org-drill")
    (pases:deffile "contrib/lisp/org-elisp-symbol")
    (pases:deffile "contrib/lisp/org-eval-light")
    (pases:deffile "contrib/lisp/org-eval")
@@ -136,8 +142,11 @@
    (pases:deffile "contrib/lisp/org-screen")
    (pases:deffile "contrib/lisp/org-secretary")
    (pases:deffile "contrib/lisp/org-special-blocks")
+   (pases:deffile "contrib/lisp/org-static-mathjax")
    (pases:deffile "contrib/lisp/org-toc")
    (pases:deffile "contrib/lisp/org-track")
+   (pases:deffile "contrib/lisp/org-velocity")
+   (pases:deffile "contrib/lisp/org-wikinodes")
    (pases:deffile "contrib/lisp/org2rem")
    (pases:deffile "contrib/lisp/orgtbl-sqlinsert")
 
@@ -145,3 +154,5 @@
    (pases:deffile "contrib/babel/langs/ob-oz" :optional t)
 
    (pases:def-info-dir "doc")))
+
+
