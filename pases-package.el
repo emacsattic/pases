@@ -86,14 +86,14 @@ existing values in alist with the same key, sorting them."
   (if (pases:package-disabled? name version)
       (if (y-or-n-p
            (format "Package %s (%s) installed but disabled; enable? "
-                   old-version name))
+                   name (pases:system-version-internal (pases:get-system (pases:mk-symbol name)))))
           (pases:enable-package name version)))
   (let ((old-version (pases:enabled-version name)))
     (if old-version
         (if (y-or-n-p
              (format "Another version (%s) of %s installed; uninstall? "
                      old-version name))
-            (pases:uninstall-package name)
+            (pases:uninstall-package name old-version)
           (progn
             (message "OK, disabling old version.")
             (pases:disable-package name))))))
@@ -224,10 +224,21 @@ If optional argument VERSION is supplied, checks the version."
     (pases:check-old-versions name version)
     (make-directory package-install-dir)
     (pases:unzip package-path package-install-dir)
-    (pases:read-package-dir package-install-dir)
-    (pases:oos pases:load-op (pases:mk-symbol name))
-    (message "[pases] Successfully installed %s (%s) to %s." name version
-             pases:package-install-dir)))
+    (condition-case err
+	(progn
+	  (pases:check-package-dir-depends package-install-dir)
+	  (pases:read-package-dir package-install-dir)
+	  (pases:oos pases:load-op (pases:mk-symbol name))
+	  (message "[pases] Successfully installed %s (%s) to %s." name version
+		   pases:package-install-dir))
+      (depend-error
+       (pases:uninstall-package name version t)
+       (message "[pases] Could not install %s because dependencies not met: %s."
+		name (cdr err)))
+      (error
+       (pases:uninstall-package name version t)
+       (message "[pases] Error installing %s: %s"
+		name (cdr err))))))
 
 (defun pases:enabled-packages-in-dir (package-dir)
   (let ((packages))
@@ -283,7 +294,7 @@ packages with a list of their versions; e.g.:
 that package."
   (cdr (assoc-string package-name (pases:enabled-packages))))
 
-(defun pases:uninstall-package (name version)
+(defun pases:uninstall-package (name version &optional force)
   "Uninstall a package."
   (interactive
    (pases:completing-read-installed-package))
@@ -299,8 +310,9 @@ that package."
                                               (funcall recurse-delete path)
                                             (delete-file path)))))
                            (delete-directory d))))
-    (if (y-or-n-p
-       (format "Are you sure that you want to remove all files in %s? " package-path))
+    (if (or force
+	    (y-or-n-p
+	     (format "Are you sure that you want to remove all files in %s? " package-path)))
         (progn
           (if (pases:system-defined?  (pases:mk-symbol name))
                (progn
@@ -331,7 +343,30 @@ that package."
   (let ((files (directory-files package-dir t "\\.pasdef$")))
     (if (not (null files))
 	(pases:read-sysdef (car files)))))
-  
+
+(defun pases:check-system-depends (system-name)
+  (let* ((system (pases:get-system system-name))
+        (dep-check (pases:system-check-dependencies-internal system)))
+    (mapc (lambda (depend)
+            (if (not (pases:system-defined? depend))
+                (signal 'depend-error
+                        (list (format "%s not a defined system." depend)))))
+          (pases:system-after-internal system))
+    (if dep-check
+        (funcall dep-check))))
+
+(defun pases:check-package-dir-depends (package-dir)
+  (let ((orig-pases-sytems pases:systems)
+	(pases:systems (copy-list pases:systems)))
+    (unwind-protect
+	(progn
+	  (pases:read-package-dir package-dir)
+	  (mapc (lambda (system-name)
+		  (if (not (memq system-name orig-pases-sytems))
+		      (pases:check-system-depends system-name)))
+		pases:systems))
+      (setq pases:systems orig-pases-sytems))))
+
 (if (not (file-exists-p pases:package-install-dir))
     (make-directory pases:package-install-dir))
 

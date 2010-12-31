@@ -1,7 +1,4 @@
-PASESFILE = $(NAME)-$(VERSION).pases
-
-$(PASESFILE): $(FILES)
-	tar c --owner=nobody --group=users --transform s/^build\\///g -zf $(PASESFILE) $(FILES) $(PASDEF)
+include ../generic.mk
 
 build:
 	svn co $(SVNURL) build
@@ -14,3 +11,4 @@ clean:
 	cd build ; svn up
 
 $(FILES): .update
+
