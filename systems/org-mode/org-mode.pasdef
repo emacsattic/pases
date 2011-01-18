@@ -2,13 +2,15 @@
 
 (pases:defsystem
  org-mode
- :version "7.3"
+ :version "7.4"
  :components
  (list 
   ;; main
+   (pases:deffile "lisp/ob")
    (pases:deffile "lisp/ob-C")
    (pases:deffile "lisp/ob-R")
    (pases:deffile "lisp/ob-asymptote")
+   (pases:deffile "lisp/ob-calc")
    (pases:deffile "lisp/ob-clojure")
    (pases:deffile "lisp/ob-comint")
    (pases:deffile "lisp/ob-css")
@@ -18,8 +20,8 @@
    (pases:deffile "lisp/ob-eval")
    (pases:deffile "lisp/ob-exp")
    (pases:deffile "lisp/ob-gnuplot")
-   (pases:deffile "lisp/ob-js")
    (pases:deffile "lisp/ob-haskell")
+   (pases:deffile "lisp/ob-js")
    (pases:deffile "lisp/ob-keys")
    (pases:deffile "lisp/ob-latex")
    (pases:deffile "lisp/ob-ledger")
@@ -42,7 +44,7 @@
    (pases:deffile "lisp/ob-sqlite")
    (pases:deffile "lisp/ob-table")
    (pases:deffile "lisp/ob-tangle")
-   (pases:deffile "lisp/ob")
+   (pases:deffile "lisp/org")
    (pases:deffile "lisp/org-agenda")
    (pases:deffile "lisp/org-archive")
    (pases:deffile "lisp/org-ascii")
@@ -54,14 +56,15 @@
    (pases:deffile "lisp/org-clock")
    (pases:deffile "lisp/org-colview")
    (pases:deffile "lisp/org-compat")
+   (pases:deffile "lisp/org-complete")
    (pases:deffile "lisp/org-crypt")
    (pases:deffile "lisp/org-ctags")
    (pases:deffile "lisp/org-datetree")
    (pases:deffile "lisp/org-docbook")
    (pases:deffile "lisp/org-docview")
    (pases:deffile "lisp/org-entities")
-   (pases:deffile "lisp/org-exp-blocks")
    (pases:deffile "lisp/org-exp")
+   (pases:deffile "lisp/org-exp-blocks")
    (pases:deffile "lisp/org-faces")
    (pases:deffile "lisp/org-feed")
    (pases:deffile "lisp/org-footnote")
@@ -74,7 +77,6 @@
    (pases:deffile "lisp/org-indent")
    (pases:deffile "lisp/org-info")
    (pases:deffile "lisp/org-inlinetask")
-   (pases:deffile "lisp/org-install" :load t)
    (pases:deffile "lisp/org-irc")
    (pases:deffile "lisp/org-jsinfo")
    (pases:deffile "lisp/org-latex")
@@ -99,7 +101,8 @@
    (pases:deffile "lisp/org-w3m")
    (pases:deffile "lisp/org-wl")
    (pases:deffile "lisp/org-xoxo")
-   (pases:deffile "lisp/org")
+
+   (pases:deffile "lisp/org-install" :load t)
 
    ;; xemacs
    (pases:deffile "./xemacs/noutline" 
