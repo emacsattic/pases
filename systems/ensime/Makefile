@@ -1,7 +1,7 @@
 NAME		= ensime
-VERSION		= 0.3.0
-URL		= http://github.com/downloads/aemoncannon/ensime/ensime_2.8.0-0.3.0.tar.gz
-TARFILE		= ensime_2.8.0-0.3.0.tar.gz
+VERSION		= 0.4.1
+URL		= https://github.com/downloads/aemoncannon/ensime/ensime_2.8.1-0.4.1.tar.gz
+TARFILE		= ensime_2.8.1-0.4.1.tar.gz
 PASDEF		= ensime.pasdef
 DESCRIPTION	= Package for $NAME ($VERSION).
 PASESFILE	= $(NAME)-$(VERSION).pases

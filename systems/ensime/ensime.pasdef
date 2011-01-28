@@ -3,9 +3,9 @@
 (pases:defsystem 
  ensime
  :load-after '(scala-mode auto-complete)
- :version "0.3.0"
+ :version "0.4.1"
  :components
- (list (pases:deffile "elisp/ensime" :compile nil)
+ (list (pases:deffile "elisp/ensime" :compile t)
        (pases:deffile "elisp/ensime-auto-complete")
        (pases:deffile "elisp/ensime-builder")
        (pases:deffile "elisp/ensime-config")
@@ -13,7 +13,9 @@
        (pases:deffile "elisp/ensime-inf")
        (pases:deffile "elisp/ensime-refactor")
        (pases:deffile "elisp/ensime-sbt")
-       (pases:deffile "elisp/ensime-test"))
+       (pases:deffile "elisp/ensime-search")
+       (pases:deffile "elisp/ensime-test")
+       (pases:deffile "elisp/ensime-undo"))
  :after-load-hook (lambda ()
                     (chmod (expand-file-name
                             "bin/server.sh"
