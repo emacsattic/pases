@@ -32,7 +32,7 @@ Installing
 To begin, bootsrap pases by evaluating the following code in Emacs::
 
   (let ((buffer (url-retrieve-synchronously
-  	       "http://e6h.org/~egh/tmp/pases-bootstrap.el")))
+  	       "http://launchpad.net/pases/trunk/0.2/+download/pases-bootstrap.el")))
     (save-excursion
       (set-buffer buffer)
       (goto-char (point-min))
@@ -41,7 +41,9 @@ To begin, bootsrap pases by evaluating the following code in Emacs::
       (kill-buffer (current-buffer))))
 
 You are now ready to install your first pases package, pases itself.
-Download the pases-0.2.pases distribution, and type::
+Download the pases-0.2.pases distribution from:
+http://launchpad.net/pases/trunk/0.2/+download/pases-0.2.pases, and,
+in Emacs, run::
 
   M-x pases:install-package
 
@@ -82,6 +84,6 @@ Getting packages
 Included in the distribution are a number of Makefiles for building
 packages (under the systems/ directory). From a directory, use make to
 build a package. Alternately, there are pre-build binary packages
-available from the Pases web site.
+available from:
 
-<http://launchpad.net/pases>
+http://e6h.org/pases/
