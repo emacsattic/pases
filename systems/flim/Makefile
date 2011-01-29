@@ -1,7 +1,7 @@
-GITURL	= http://github.com/wanderlust/flim.git -b flim-1_14
-TAG     = af98bc565f7055f479fd8ff8a154d758a2c40885
+GITURL	= http://github.com/wanderlust/flim.git
+TAG     = 3584bece012fd780361b17f0e2767c060cb91ff3
 NAME	= flim
-VERSION	= 1.14.9_20100310
+VERSION	= 1.14.9_20100804
 PASDEF	= flim.pasdef
 FILES = \
 eword-decode.el \

@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp -*-
 (pases:defsystem
  flim
- :version "1.14.9_20100310"
+ :version "1.14.9_20100804"
  :after '(apel)
  :check-dependencies (lambda ()
    (if (not (product-version>= (product-find-by-name "APEL") '(10 7)))
