@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp -*-
 (pases:defsystem
  wl
- :version "2.15.9_20100720"
+ :version "2.15.9"
  :after '(semi)
  :check-dependencies (lambda ()
    (if (not (and (>= (nth 0 (aref mime-user-interface-product 1)) 1)

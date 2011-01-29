@@ -1,0 +1,21 @@
+--- WL-CFG.orig	2011-01-28 19:34:31.352103001 -0800
++++ WL-CFG	2011-01-28 19:34:52.272103001 -0800
+@@ -2,14 +2,15 @@
+ ;;; Configuration file for installation.
+ 
+ ;; load-path setting example for Mule with SEMI.
+-;(setq load-path (append
++(setq load-path (append
++                 (list (expand-file-name "~/.pases.gnuemacs.23.d"))
+ ;		 (list "/usr/local/share/mule/site-lisp/apel"
+ ;		       "/usr/local/share/mule/site-lisp/flim"
+ ;		       "/usr/local/share/mule/site-lisp/semi")
+-;		 load-path))
++		 load-path))
+ 
+ ;; If you want to install utils, uncomment following line.
+-;(setq wl-install-utils t)
++(setq wl-install-utils t)
+ 
+ ;; Set language for info file ("ja" or "en", both in default).
+ ;; If you only need manual in English, uncomment following line.
