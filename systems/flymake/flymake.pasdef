@@ -1,0 +1,9 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ flymake
+ :version "0.3"
+ :components
+ (list (pases:deffile "flymake" 
+                      :generate-autoloads-to "flymake-loaddefs")
+       (pases:deffile "flymake-loaddefs" :load t :generated t)))
