@@ -7,4 +7,4 @@ FETCHFILE	= js2-20090723b.el
 DESCRIPTION	= Package for js2-mode (v. 20090723b)
 
 include ../generic-single.mk
-include ../launchpad.mk
+include ../generic-e6h.mk

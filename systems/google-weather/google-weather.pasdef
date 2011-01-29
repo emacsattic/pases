@@ -2,7 +2,7 @@
 
 (pases:defsystem 
  google-weather
- :version "0.1"
+ :version "20101122"
  :components
  (list (pases:deffile "google-weather")
        (pases:deffile "org-google-weather"      

@@ -11,3 +11,4 @@ dict/* \
 doc/*
 
 include ../generic-tarbz2.mk
+include ../generic-e6h.mk

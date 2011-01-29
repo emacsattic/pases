@@ -28,4 +28,4 @@ xemacs/*.el \
 xemacs/README
 
 include ../generic-targz.mk
-include ../launchpad.mk
+include ../generic-e6h.mk

@@ -14,3 +14,4 @@ bin/server.sh \
 lib/*.jar
 
 include ../generic-targz.mk
+include ../generic-e6h.mk

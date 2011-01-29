@@ -12,4 +12,4 @@ contrib/README \
 contrib/dot-ctags 
 
 include ../generic-svn.mk
-include ../launchpad.mk
+include ../generic-e6h.mk

@@ -7,3 +7,4 @@ FETCHFILE	= speck.el
 DESCRIPTION	= Package for $(NAME) (v. $(VERSION))
 
 include ../generic-single.mk
+include ../generic-e6h.mk

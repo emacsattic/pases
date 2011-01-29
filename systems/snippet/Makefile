@@ -6,4 +6,4 @@ FILE		= snippet.el
 FETCHFILE	= snippet.el
 
 include ../generic-single.mk
-
+include ../generic-e6h.mk

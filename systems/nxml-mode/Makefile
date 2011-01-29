@@ -194,3 +194,4 @@ COPYING \
 test.valid.xml
 
 include ../generic-targz.mk
+include ../generic-e6h.mk

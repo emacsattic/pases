@@ -6,4 +6,4 @@ FILE = find-recursive.el
 FETCHFILE = find-recursive.txt
 
 include ../generic-single.mk
-
+include ../generic-e6h.mk

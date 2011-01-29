@@ -16,3 +16,5 @@ unichars.el:
 
 xmlunicode.el:
 	wget http://nwalsh.com/emacs/xmlchars/xmlunicode.el -q
+
+include ../generic-e6h.mk

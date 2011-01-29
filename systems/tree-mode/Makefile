@@ -6,4 +6,4 @@ FILE		= tree-mode.el
 FETCHFILE	= tree-mode.el
 
 include ../generic-single.mk
-
+include ../generic-e6h.mk
