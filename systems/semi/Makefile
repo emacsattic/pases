@@ -1,7 +1,7 @@
 GITURL		= http://github.com/wanderlust/semi.git
-TAG 		= 23e4fea3cc6164f0f013459fa62533767d72d784
+TAG 		= c44e61ef0b850adac5ed4dc2c46b736946a41c53
 NAME		= semi
-VERSION		= 1.14.6_20100604
+VERSION		= 1.14.6_20101024
 PASDEF		= semi.pasdef
 DESCRIPTION	= Package for $NAME ($VERSION).
 

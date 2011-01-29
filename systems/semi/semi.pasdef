@@ -1,7 +1,7 @@
 ;; -*- mode: emacs-lisp -*-
 (pases:defsystem
  semi
- :version "1.14.6_20100604"
+ :version "1.14.6_20101024"
  :after '(flim)
  :check-dependencies (lambda ()
    (if (not (and (>= (nth 0 (aref mime-library-product 1)) 1)
