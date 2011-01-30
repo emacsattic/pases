@@ -1,0 +1,7 @@
+;; -*- mode: emacs-lisp -*-
+
+(pases:defsystem
+ dropdown-list
+ :version "20090814"
+ :components
+ (list (pases:deffile "dropdown-list")))
