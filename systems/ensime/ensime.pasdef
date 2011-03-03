@@ -3,7 +3,7 @@
 (pases:defsystem 
  ensime
  :load-after '(scala-mode auto-complete)
- :version "0.4.1"
+ :version "0.4.3"
  :components
  (list (pases:deffile "elisp/ensime" :compile t)
        (pases:deffile "elisp/ensime-auto-complete")
@@ -18,7 +18,7 @@
        (pases:deffile "elisp/ensime-undo"))
  :after-load-hook (lambda ()
                     (chmod (expand-file-name
-                            "bin/server.sh"
+                            "bin/server"
                             (pases:component-pathname-internal
                              pases:current-component))
                            #o0755)
