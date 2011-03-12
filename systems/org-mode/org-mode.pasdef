@@ -2,7 +2,7 @@
 
 (pases:defsystem
  org-mode
- :version "7.4"
+ :version "7.5"
  :components
  (list 
   ;; main
@@ -25,6 +25,7 @@
    (pases:deffile "lisp/ob-keys")
    (pases:deffile "lisp/ob-latex")
    (pases:deffile "lisp/ob-ledger")
+   (pases:deffile "lisp/ob-lisp")
    (pases:deffile "lisp/ob-lob")
    (pases:deffile "lisp/ob-matlab")
    (pases:deffile "lisp/ob-mscgen")
@@ -44,72 +45,89 @@
    (pases:deffile "lisp/ob-sqlite")
    (pases:deffile "lisp/ob-table")
    (pases:deffile "lisp/ob-tangle")
-   (pases:deffile "lisp/org")
+   (pases:deffile "lisp/org" 
+                  :compile-after '("lisp/org-macs" "lisp/org-compat" "lisp/org-faces"))
    (pases:deffile "lisp/org-agenda")
    (pases:deffile "lisp/org-archive")
-   (pases:deffile "lisp/org-ascii")
-   (pases:deffile "lisp/org-attach")
+   (pases:deffile "lisp/org-ascii"
+                  :compile-after '("lisp/org-exp"))
+   (pases:deffile "lisp/org-attach"
+                  :compile-after '("lisp/org-id"))
    (pases:deffile "lisp/org-bbdb")
    (pases:deffile "lisp/org-beamer")
    (pases:deffile "lisp/org-bibtex")
-   (pases:deffile "lisp/org-capture")
+   (pases:deffile "lisp/org-capture"
+                  :compile-after '("lisp/org-mks"))
    (pases:deffile "lisp/org-clock")
    (pases:deffile "lisp/org-colview")
    (pases:deffile "lisp/org-compat")
-   (pases:deffile "lisp/org-complete")
    (pases:deffile "lisp/org-crypt")
    (pases:deffile "lisp/org-ctags")
    (pases:deffile "lisp/org-datetree")
    (pases:deffile "lisp/org-docbook")
    (pases:deffile "lisp/org-docview")
    (pases:deffile "lisp/org-entities")
-   (pases:deffile "lisp/org-exp")
+   (pases:deffile "lisp/org-exp"
+                  :compile-after '("lisp/org-agenda"))
    (pases:deffile "lisp/org-exp-blocks")
-   (pases:deffile "lisp/org-faces")
+   (pases:deffile "lisp/org-faces"
+                  :compile-after '("lisp/org-macs" "lisp/org-compat"))
    (pases:deffile "lisp/org-feed")
-   (pases:deffile "lisp/org-footnote")
+   (pases:deffile "lisp/org-footnote"
+                  :compile-after '("lisp/org-macs" "lisp/org-compat"))
    (pases:deffile "lisp/org-freemind")
    (pases:deffile "lisp/org-gnus")
-   (pases:deffile "lisp/org-habit")
-   (pases:deffile "lisp/org-html")
-   (pases:deffile "lisp/org-icalendar")
+   (pases:deffile "lisp/org-habit"
+                  :compile-after '("lisp/org-agenda"))
+   (pases:deffile "lisp/org-html"
+                  :compile-after '("lisp/org-exp"))
+   (pases:deffile "lisp/org-icalendar"
+                  :compile-after '("lisp/org-exp"))
    (pases:deffile "lisp/org-id")
-   (pases:deffile "lisp/org-indent")
+   (pases:deffile "lisp/org-indent"
+                  :compile-after '("lisp/org-macs" "lisp/org-compat"))
    (pases:deffile "lisp/org-info")
    (pases:deffile "lisp/org-inlinetask")
    (pases:deffile "lisp/org-irc")
-   (pases:deffile "lisp/org-jsinfo")
+   (pases:deffile "lisp/org-jsinfo"
+                  :compile-after '("lisp/org-exp"))
    (pases:deffile "lisp/org-latex")
-   (pases:deffile "lisp/org-list")
+   (pases:deffile "lisp/org-list"
+                  :compile-after '("lisp/org-macs" "lisp/org-compat"))
    (pases:deffile "lisp/org-mac-message")
-   (pases:deffile "lisp/org-macs")
+   (pases:deffile "lisp/org-macs"
+                  :compile-after '("lisp/org-macs" "lisp/org-compat"))
    (pases:deffile "lisp/org-mew")
    (pases:deffile "lisp/org-mhe")
    (pases:deffile "lisp/org-mks")
    (pases:deffile "lisp/org-mobile")
    (pases:deffile "lisp/org-mouse")
-   (pases:deffile "lisp/org-plot")
+   (pases:deffile "lisp/org-pcomplete")
+   (pases:deffile "lisp/org-plot"
+                  :compile-after '("lisp/org-exp" "lisp/org-table"))
    (pases:deffile "lisp/org-protocol")
    (pases:deffile "lisp/org-publish")
    (pases:deffile "lisp/org-remember")
    (pases:deffile "lisp/org-rmail")
-   (pases:deffile "lisp/org-src")
+   (pases:deffile "lisp/org-special-blocks"
+                  :compile-after '("lisp/org-compat"))
+   (pases:deffile "lisp/org-src"
+                  :compile-after '("lisp/org-macs" "lisp/org-compat"))
    (pases:deffile "lisp/org-table")
-   (pases:deffile "lisp/org-taskjuggler")
+   (pases:deffile "lisp/org-taskjuggler"
+                  :compile-after '("lisp/org-exp"))
    (pases:deffile "lisp/org-timer")
    (pases:deffile "lisp/org-vm")
    (pases:deffile "lisp/org-w3m")
    (pases:deffile "lisp/org-wl")
-   (pases:deffile "lisp/org-xoxo")
+   (pases:deffile "lisp/org-xoxo"
+                  :compile-after '("lisp/org-exp"))
 
    (pases:deffile "lisp/org-install" :load t)
 
    ;; xemacs
-   (pases:deffile "./xemacs/noutline" 
-                  :only-if (eq pases:emacs-variant :xemacs))
-   (pases:deffile "./xemacs/ps-print-invisible"
-                  :only-if (eq pases:emacs-variant :xemacs))
    (pases:deffile "lisp/org-colview-xemacs"
+                  :compile-after '("lisp/org")
                   :only-if (eq pases:emacs-variant :xemacs))
 
    ;; contrib
@@ -123,6 +141,7 @@
    (pases:deffile "contrib/lisp/org-depend")
    (pases:deffile "contrib/lisp/org-drill")
    (pases:deffile "contrib/lisp/org-elisp-symbol")
+   (pases:deffile "contrib/lisp/org-eshell")
    (pases:deffile "contrib/lisp/org-eval-light")
    (pases:deffile "contrib/lisp/org-eval")
    (pases:deffile "contrib/lisp/org-exp-bibtex")
@@ -140,11 +159,11 @@
    (pases:deffile "contrib/lisp/org-man")
    (pases:deffile "contrib/lisp/org-mime")
    (pases:deffile "contrib/lisp/org-mtags")
+   (pases:deffile "contrib/lisp/org-notmuch")
    (pases:deffile "contrib/lisp/org-panel")
    (pases:deffile "contrib/lisp/org-registry")
    (pases:deffile "contrib/lisp/org-screen")
    (pases:deffile "contrib/lisp/org-secretary")
-   (pases:deffile "contrib/lisp/org-special-blocks")
    (pases:deffile "contrib/lisp/org-static-mathjax")
    (pases:deffile "contrib/lisp/org-toc")
    (pases:deffile "contrib/lisp/org-track")
@@ -157,5 +176,3 @@
    (pases:deffile "contrib/babel/langs/ob-oz" :optional t)
 
    (pases:def-info-dir "doc")))
-
-
