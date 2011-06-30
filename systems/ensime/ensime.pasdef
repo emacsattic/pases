@@ -5,18 +5,18 @@
  :load-after '(scala-mode auto-complete)
  :version "0.5.0"
  :components
- (list (pases:deffile "elisp/ensime" :compile t)
-       (pases:deffile "elisp/ensime-auto-complete")
-       (pases:deffile "elisp/ensime-builder")
-       (pases:deffile "elisp/ensime-config")
-       (pases:deffile "elisp/ensime-debug")
-       (pases:deffile "elisp/ensime-doc")
-       (pases:deffile "elisp/ensime-inf")
-       (pases:deffile "elisp/ensime-refactor")
-       (pases:deffile "elisp/ensime-sbt")
-       (pases:deffile "elisp/ensime-search")
-       (pases:deffile "elisp/ensime-test")
-       (pases:deffile "elisp/ensime-undo"))
+ (list (pases:deffile "elisp/ensime" :compile nil)
+       (pases:deffile "elisp/ensime-auto-complete" :compile nil)
+       (pases:deffile "elisp/ensime-builder" :compile nil)
+       (pases:deffile "elisp/ensime-config" :compile nil)
+       (pases:deffile "elisp/ensime-debug" :compile nil)
+       (pases:deffile "elisp/ensime-doc" :compile nil)
+       (pases:deffile "elisp/ensime-inf" :compile nil)
+       (pases:deffile "elisp/ensime-refactor" :compile nil)
+       (pases:deffile "elisp/ensime-sbt" :compile nil)
+       (pases:deffile "elisp/ensime-search" :compile nil)
+       (pases:deffile "elisp/ensime-test" :compile nil)
+       (pases:deffile "elisp/ensime-undo" :compile nil))
  :after-load-hook (lambda ()
                     (chmod (expand-file-name
                             "bin/server"
@@ -27,6 +27,9 @@
                       "Conveniance hook function that just starts ensime-mode.")
                     (autoload 'ensime-mode "ensime"
                       "ENSIME: The ENhanced Scala Interaction Mode for Emacs (minor-mode).")
+                    (setq ensime-default-server-root
+                          (pases:component-pathname-internal
+                           pases:current-component))
                     (add-hook 'scala-mode-hook 'ensime-scala-mode-hook))
  :after-unload-hook (lambda ()
                       (remove-hook 'scala-mode-hook 'ensime-scala-mode-hook)
