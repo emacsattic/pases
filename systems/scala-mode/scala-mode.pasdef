@@ -2,7 +2,7 @@
 
 (pases:defsystem 
  scala-mode
- :version "2.8.0.final"
+ :version "2.8.1.final"
  :components
  (list (pases:deffile "scala-mode-auto" :load t)
        (pases:deffile "scala-mode-constants")
