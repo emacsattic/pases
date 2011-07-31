@@ -2,7 +2,7 @@
 
 (pases:defsystem
  org-mode
- :version "7.5"
+ :version "7.7"
  :components
  (list 
   ;; main
@@ -10,6 +10,7 @@
    (pases:deffile "lisp/ob-C")
    (pases:deffile "lisp/ob-R")
    (pases:deffile "lisp/ob-asymptote")
+   (pases:deffile "lisp/ob-awk")
    (pases:deffile "lisp/ob-calc")
    (pases:deffile "lisp/ob-clojure")
    (pases:deffile "lisp/ob-comint")
@@ -21,10 +22,12 @@
    (pases:deffile "lisp/ob-exp")
    (pases:deffile "lisp/ob-gnuplot")
    (pases:deffile "lisp/ob-haskell")
+   (pases:deffile "lisp/ob-java")
    (pases:deffile "lisp/ob-js")
    (pases:deffile "lisp/ob-keys")
    (pases:deffile "lisp/ob-latex")
    (pases:deffile "lisp/ob-ledger")
+   (pases:deffile "lisp/ob-lilypond")
    (pases:deffile "lisp/ob-lisp")
    (pases:deffile "lisp/ob-lob")
    (pases:deffile "lisp/ob-matlab")
@@ -137,6 +140,7 @@
    (pases:deffile "contrib/lisp/org-checklist")
    (pases:deffile "contrib/lisp/org-choose")
    (pases:deffile "contrib/lisp/org-collector")
+   (pases:deffile "contrib/lisp/org-contacts")
    (pases:deffile "contrib/lisp/org-contribdir")
    (pases:deffile "contrib/lisp/org-depend")
    (pases:deffile "contrib/lisp/org-drill")
@@ -153,6 +157,7 @@
    (pases:deffile "contrib/lisp/org-jira"
                    :optional t)
    (pases:deffile "contrib/lisp/org-learn")
+   (pases:deffile "contrib/lisp/org-lparse")
    (pases:deffile "contrib/lisp/org-mac-iCal")
    (pases:deffile "contrib/lisp/org-mac-link-grabber")
    (pases:deffile "contrib/lisp/org-mairix")
@@ -160,6 +165,7 @@
    (pases:deffile "contrib/lisp/org-mime")
    (pases:deffile "contrib/lisp/org-mtags")
    (pases:deffile "contrib/lisp/org-notmuch")
+   (pases:deffile "contrib/lisp/org-odt")
    (pases:deffile "contrib/lisp/org-panel")
    (pases:deffile "contrib/lisp/org-registry")
    (pases:deffile "contrib/lisp/org-screen")
@@ -169,10 +175,13 @@
    (pases:deffile "contrib/lisp/org-track")
    (pases:deffile "contrib/lisp/org-velocity")
    (pases:deffile "contrib/lisp/org-wikinodes")
+   (pases:deffile "contrib/lisp/org-xhtml")
    (pases:deffile "contrib/lisp/org2rem")
    (pases:deffile "contrib/lisp/orgtbl-sqlinsert")
 
    ;; contrib/babel/lisp
+   (pases:deffile "contrib/babel/langs/ob-fomus" :optional t)
+   (pases:deffile "contrib/babel/langs/ob-fortran" :optional t)
    (pases:deffile "contrib/babel/langs/ob-oz" :optional t)
 
    (pases:def-info-dir "doc")))

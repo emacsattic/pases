@@ -1,8 +1,8 @@
-URL		= http://orgmode.org/org-7.5.tar.gz
-VERSION		= 7.5
+URL		= http://orgmode.org/org-7.7.tar.gz
+VERSION		= 7.7
 NAME		= org-mode
 PASESFILE	= $(NAME)-$(VERSION).pases
-TARFILE		= org-7.5.tar.gz
+TARFILE		= org-7.7.tar.gz
 PASDEF		= org-mode.pasdef
 DESCRIPTION	= Package for org-mode $(VERSION)
 FILES		= \
